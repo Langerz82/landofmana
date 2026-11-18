@@ -88,6 +88,13 @@ func send_change_password(new_password: String) -> void:
 		CryptoJSCompat.make_login_hash(Game.username, new_password, Game.hash_challenge)])
 
 
+## Forgot-password window, before logging in. The user server e-mails a
+## temporary password if the username and e-mail match an account, and always
+## answers "passwordreset" (or "invalidemail", "resetwait", "mailunavailable").
+func send_forgot_password(username: String, email: String) -> void:
+	send([Types.UserMessages.CU_FORGOT_PASSWORD, username.to_lower(), email.strip_edges()])
+
+
 func send_login_player(world_index: int, player_index: int) -> void:
 	send([Types.UserMessages.CU_LOGIN_PLAYER, world_index, player_index])
 
@@ -201,7 +208,7 @@ func _on_error(data: Array) -> void:
 	match code:
 		"full", "noserver", "invalidlogin", "userexists", "playerexists", \
 		"loggedin", "invalidusername", "invalidname", "ban", "passwordChanged", "timeout", \
-		"invalidemail", "passwordfail":
+		"invalidemail", "passwordfail", "passwordreset", "resetwait", "mailunavailable":
 			info.emit(code)
 		_:
 			error.emit(GameData.tr_lang(code))

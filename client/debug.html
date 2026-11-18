@@ -136,6 +136,7 @@
 			</form>
 			<div class="frame-new-button play loading" id="user_load">LOGIN</div>
 			<div class="frame-new-button loading" id="user_create">REGISTER</div>
+			<div class="frame-stroke1" id="user_forgot">Forgot password?</div>
 			<div class="validation-summary frame-stroke1" id="loginInfo">Loading, Please wait..</div>
 			</article>
 		</div>
@@ -177,6 +178,24 @@
 			<div class="frame-new-button" id="changepw_back">BACK</div>
 			<div class="frame-new-button" id="changepw_submit">CHANGE</div>
 			<div class="validation-summary frame-stroke1" id="changepwInfo"></div>
+			</article>
+		</div>
+	</div>
+	<!-- Forgot password: opened by "Forgot password?" on the login window (see app.js
+	     showForgotWindow). E-mails a temporary password if the username and e-mail match. -->
+	<div class="frame" id="forgot_window" tabindex="0">
+		<div class="frame-heading" id="forgotHeading">FORGOT</div>
+		<div class="frame-content">
+			<article id="forgotpassword">
+			<div class="newFieldName" id="lbl_forgot_name">Username</div>
+			<div class="newFieldName" id="lbl_forgot_email">E-mail</div>
+			<form action="none" method="get" accept-charset="utf-8" autocomplete="off">
+				<input type="text" id="forgot_name" class="stroke" name="forgot-name" placeholder="Username" maxlength="16" autocomplete="username"/>
+				<input type="email" id="forgot_email" class="stroke" name="forgot-email" placeholder="E-mail" maxlength="254" autocomplete="email"/>
+			</form>
+			<div class="frame-new-button" id="forgot_back">BACK</div>
+			<div class="frame-new-button" id="forgot_submit">SEND</div>
+			<div class="validation-summary frame-stroke1" id="forgotInfo"></div>
 			</article>
 		</div>
 	</div>

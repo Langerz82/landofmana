@@ -52,6 +52,11 @@ export function installUserClientSend(proto) {
         this.sendMessage([Types.UserMessages.CU_CHANGE_PASSWORD, newHash]);
     };
 
+    // Forgot-password window, before logging in.
+    proto.sendForgotPassword = function (username, email) {
+        this.sendMessage([Types.UserMessages.CU_FORGOT_PASSWORD, username, email]);
+    };
+
     proto.sendRemoveUser = function (user) {
         this.sendMessage([
             Types.UserMessages.CU_REMOVE_USER,

@@ -84,6 +84,9 @@ const Types = {
         // [newHash] from the clients' change-password window on the character-select
         // screen, once logged in (userserver/js/user.js handleChangePassword).
         CU_CHANGE_PASSWORD: 7,
+        // [username, email] from the clients' forgot-password window, before logging
+        // in (userserver/js/user.js handleForgotPassword).
+        CU_FORGOT_PASSWORD: 8,
 
         UC_WORLD_READY: 101,
         UC_WORLDS: 102,

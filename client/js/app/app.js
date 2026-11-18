@@ -106,6 +106,17 @@ export default class App {
         this.jqChangePwBack = $('#changepw_back');
         this.passwordFormFields = [this.jqChangePwNew, this.jqChangePwNew2];
 
+        // Forgot-password window (#forgot_window), opened by "Forgot password?" on the
+        // login window - see showForgotWindow()/hideForgotWindow() in appui.js and
+        // tryForgotPassword() in appvalidation.js.
+        this.jqForgotWindow = $('#forgot_window');
+        this.jqForgotLink = $('#user_forgot');
+        this.jqForgotName = $('#forgot_name');
+        this.jqForgotEmail = $('#forgot_email');
+        this.jqForgotSubmit = $('#forgot_submit');
+        this.jqForgotBack = $('#forgot_back');
+        this.forgotFormFields = [this.jqForgotName, this.jqForgotEmail];
+
         // Create new character form fields
         this.jqPlayerNameInput = $('#player_name');
         this.playerFormFields = [this.jqPlayerNameInput];
@@ -201,6 +212,7 @@ export default class App {
         this.jqLoginInfo = $('#loginInfo');
         this.jqRegisterInfo = $('#registerInfo');
         this.jqChangePwInfo = $('#changepwInfo');
+        this.jqForgotInfo = $('#forgotInfo');
         this.jqPlayerInfo = $('#player_window .validation-summary');
         this.jqGameHeading = $('#gameheading');
 
@@ -455,7 +467,11 @@ export default class App {
                 case 'invalidusername':
                     // The username contains characters that are not allowed (rejected by the sanitizer)
                     self.addValidationError(
-                        self.registerFormActive() ? self.jqRegisterName : null,
+                        self.registerFormActive()
+                            ? self.jqRegisterName
+                            : self.forgotFormActive()
+                              ? self.jqForgotName
+                              : null,
                         lang.data['USERNAME_INVALID_CHARS']
                     );
                     break;
@@ -479,9 +495,30 @@ export default class App {
                     // userserver/js/user.js's handleCreateUser (Utils.checkInputEmail). The
                     // connection stays open, so the player can fix it or clear it and retry.
                     self.addValidationError(
-                        self.jqRegisterEmail,
-                        lang.data['EMAIL_INVALID']
+                        self.forgotFormActive()
+                            ? self.jqForgotEmail
+                            : self.jqRegisterEmail,
+                        self.forgotFormActive()
+                            ? lang.data['EMAIL_REQUIRED']
+                            : lang.data['EMAIL_INVALID']
                     );
+                    break;
+
+                case 'passwordreset':
+                    // userserver/js/user.js handleForgotPassword - the same answer whether
+                    // or not the username and e-mail matched an account. Back to the login
+                    // window with the username filled in, ready for the temporary password.
+                    self.hideForgotWindow();
+                    self.jqUserPasswordInput.val('');
+                    self.jqLoginInfo.text(lang.data['PASSWORD_RESET_SENT']);
+                    break;
+
+                case 'resetwait':
+                    self.addValidationError(null, lang.data['PASSWORD_RESET_WAIT']);
+                    break;
+
+                case 'mailunavailable':
+                    self.addValidationError(null, lang.data['MAIL_UNAVAILABLE']);
                     break;
 
                 case 'loggedin':
@@ -601,6 +638,29 @@ export default class App {
         });
         this.jqRegisterBack.click(function () {
             self.hideRegisterWindow();
+        });
+        this.jqForgotLink.click(function () {
+            self.showForgotWindow();
+        });
+        this.jqForgotSubmit.click(function () {
+            if (!self.userReady) return;
+            self.tryForgotPassword();
+        });
+        this.jqForgotBack.click(function () {
+            self.hideForgotWindow();
+        });
+        this.jqForgotWindow.keydown(function (e) {
+            if (e.which === 13) {
+                if (self.userReady) {
+                    $('input').blur(); // exit keyboard on mobile
+                    self.tryForgotPassword();
+                }
+                return false;
+            }
+            if (e.which === 27) {
+                self.hideForgotWindow();
+                return false;
+            }
         });
         this.jqChangePwButton.click(function () {
             self.showPasswordWindow();

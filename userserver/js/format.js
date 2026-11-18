@@ -386,6 +386,12 @@ class FormatChecker {
         this.formats[Types.UserMessages.CU_CHANGE_PASSWORD] = tupleField([
             stringField(userHashLenMin, userHashLenMax)
         ]);
+        // [username, email] -- the e-mail's format is checked in user.js
+        // handleForgotPassword ('invalidemail'), only its length here.
+        this.formats[Types.UserMessages.CU_FORGOT_PASSWORD] = tupleField([
+            stringField(usernameLenMin, usernameLenMax),
+            stringField(0, userEmailLenMax)
+        ]);
         this.formats[Types.UserMessages.CU_LOGIN_USER] = tupleField([
             stringField(usernameLenMin, usernameLenMax),
             stringField(userHashLenMin, userHashLenMax)

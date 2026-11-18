@@ -390,6 +390,7 @@ export function installAppUI(proto) {
             // (it's opened over a hidden #user_window, see showRegisterWindow below).
             this.jqRegisterWindow.hide();
             this.jqPasswordWindow.hide();
+            this.jqForgotWindow.hide();
         } else {
             this.jqChangePwButton.hide();
         }
@@ -438,6 +439,28 @@ export function installAppUI(proto) {
         this.jqChangePwButton.show();
         this.jqUserRemove.show();
         this.jqPlayerWindow.focus();
+    };
+
+    /**
+     * Opens the forgot-password window (#forgot_window) in place of the login window,
+     * carrying over the username typed there.
+     */
+    proto.showForgotWindow = function () {
+        this.clearValidationErrors();
+        this.jqForgotName.val(this.jqUsernameInput.val());
+        this.jqForgotInfo.text('');
+        this.jqUserWindow.hide();
+        this.jqForgotWindow.show();
+        (this.jqForgotName.val() ? this.jqForgotEmail : this.jqForgotName).focus();
+    };
+
+    /** Back to the login window, keeping the username typed on the forgot-password window. */
+    proto.hideForgotWindow = function () {
+        this.clearValidationErrors();
+        if (this.jqForgotName.val()) this.jqUsernameInput.val(this.jqForgotName.val());
+        this.jqForgotWindow.hide();
+        this.jqUserWindow.show();
+        this.jqUserWindow.focus();
     };
 
     /** Back to the login window, keeping the username typed on the create-account window. */

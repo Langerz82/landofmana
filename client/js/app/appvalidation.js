@@ -88,6 +88,24 @@ export function installAppValidation(proto) {
         this.userclient.sendChangePassword(newUser.hash);
     };
 
+    // Forgot-password window: sends [username, email] (userclientsend.js
+    // sendForgotPassword). The server e-mails a temporary password if they match.
+    proto.tryForgotPassword = function () {
+        if (this.starting) return; // Already loading
+
+        const username = this.jqForgotName.val().trim();
+        const email = this.jqForgotEmail.val().trim();
+        if (!this.validateUserForm(username, '', this.jqForgotName)) return;
+        if (!Utils.checkInputEmail(email)) {
+            this.addValidationError(
+                this.jqForgotEmail,
+                lang.data['EMAIL_REQUIRED']
+            );
+            return;
+        }
+        this.userclient.sendForgotPassword(username.toLowerCase(), email);
+    };
+
     proto.tryPlayerAction = function (action) {
         if (this.starting) return; // Already loading
 
@@ -136,11 +154,16 @@ export function installAppValidation(proto) {
         return this.jqPasswordWindow.is(':visible');
     };
 
+    proto.forgotFormActive = function () {
+        return this.jqForgotWindow.is(':visible');
+    };
+
     // The fields of whichever account window (login, create account, change password)
     // is showing - for clearing a server-sent error once the player edits them.
     proto.activeAccountFormFields = function () {
         if (this.registerFormActive()) return this.registerFormFields;
         if (this.passwordFormActive()) return this.passwordFormFields;
+        if (this.forgotFormActive()) return this.forgotFormFields;
         return this.userFormFields;
     };
 
@@ -381,6 +404,7 @@ export function installAppValidation(proto) {
         if (this.userFormActive()) fields = this.userFormFields;
         else if (this.registerFormActive()) fields = this.registerFormFields;
         else if (this.passwordFormActive()) fields = this.passwordFormFields;
+        else if (this.forgotFormActive()) fields = this.forgotFormFields;
         else if (this.playerFormActive()) fields = this.playerFormFields;
 
         if (fields) {

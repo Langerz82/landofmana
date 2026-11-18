@@ -148,6 +148,10 @@ export function installUserClientCallbacks(proto) {
             // connection stays open, so they're shown on the form, not the error window.
             case 'invalidemail':
             case 'passwordfail':
+            // Forgot-password window.
+            case 'passwordreset':
+            case 'resetwait':
+            case 'mailunavailable':
                 app.info_callback(data);
                 return;
             // FIX: removed duplicate unreachable 'timeout' case (referenced undefined `self`); merged its isTimeout logic here using `this`

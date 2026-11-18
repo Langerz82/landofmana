@@ -34,6 +34,7 @@ import { checkWithReason, logRejectedPacket } from './rejectlog.js';
 // still a hidden dependency on main.js's import order for no reason, since
 // both are static, non-circular exports from common.js.
 import { Types, Utils } from './common.js';
+import { mailConfigured, sendMail } from './mailer.js';
 
 // FIX: added for checkUser()'s password-hash comparison below -- plain
 // `!==` on a hash string short-circuits on the first mismatched character,
@@ -69,6 +70,26 @@ function decryptPassword(hash, challenge) {
 // failures within LOGIN_FAIL_WINDOW_MS that pair is refused until the window
 // expires. Keyed on the pair (not the username alone) so a third party
 // can't lock a real player out of their own account.
+// Forgot-password window: last request time per username and recent request
+// times per IP address, so one account can't be reset over and over and one
+// address can't reset many accounts (handleForgotPassword). In memory only --
+// a restart clears it, which is fine for a cooldown.
+const resetByName = new Map();
+const resetByIp = new Map();
+const RESET_IP_LIMIT = 5;
+const RESET_IP_WINDOW_MS = 60 * 60 * 1000;
+
+// 8 characters, letters and digits that can't be confused with each other
+// (no 0/O, 1/l/I) -- the temporary password e-mailed by handleForgotPassword.
+const TEMP_PASSWORD_CHARS =
+    'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+function makeTempPassword() {
+    let pw = '';
+    for (let i = 0; i < 8; i++)
+        pw += TEMP_PASSWORD_CHARS[crypto.randomInt(TEMP_PASSWORD_CHARS.length)];
+    return pw;
+}
+
 const LOGIN_FAIL_LIMIT = 10;
 const LOGIN_FAIL_WINDOW_MS = 15 * 60 * 1000;
 const loginFailures = new Map(); // "ip|username" -> { count, first }
@@ -244,6 +265,9 @@ class User {
                     return;
                 case Types.UserMessages.CU_LOGIN_USER:
                     self.handleLoginUser(message);
+                    return;
+                case Types.UserMessages.CU_FORGOT_PASSWORD:
+                    self.handleForgotPassword(message);
                     return;
             }
 
@@ -496,6 +520,123 @@ class User {
                 Types.UserMessages.UC_ERROR,
                 'passwordChanged'
             ]);
+        });
+    }
+
+    // Forgot-password window (both clients' login screen): [username, email]. If the
+    // username exists and the e-mail matches the one saved on the account (from the
+    // create-account window), a random 8-character temporary password is e-mailed to
+    // it and becomes the account's password -- saved only once the e-mail has been
+    // sent, so a mail failure never locks anyone out. The player logs in with it and
+    // changes it with the PASSWORD button on the character-select screen.
+    //
+    // The client always gets the same 'passwordreset' answer whether or not anything
+    // matched, so this can't be used to find out which usernames or e-mails exist.
+    // Other answers: 'invalidusername' / 'invalidemail' (bad input), 'mailunavailable'
+    // (no SMTP set up in config.json), 'resetwait' (more than RESET_IP_LIMIT requests
+    // per hour from this address, matched or not).
+    //
+    // Once a temporary password has been sent, that username gets no further e-mails
+    // for password_reset_cooldown_minutes (default 15) -- later requests in that time
+    // still get 'passwordreset' and are skipped quietly (a different answer would
+    // reveal that the username and e-mail matched). The cooldown only starts on an
+    // actual send, so a player who mistyped the e-mail can retry straight away.
+    handleForgotPassword(message) {
+        if (this.loadedUser || this.hasLoggedIn) return;
+
+        const name = Utils.sanitize(message[0]).substr(0, 16).trim().toLowerCase();
+        const email = typeof message[1] === 'string' ? message[1].trim() : '';
+        const send = (code) =>
+            this.connection.send([Types.UserMessages.UC_ERROR, code]);
+
+        if (!Utils.checkInputName(name)) {
+            send('invalidusername');
+            return;
+        }
+        if (!Utils.checkInputEmail(email)) {
+            send('invalidemail');
+            return;
+        }
+        if (!mailConfigured()) {
+            send('mailunavailable');
+            return;
+        }
+
+        const now = Date.now();
+        const configuredCooldown =
+            typeof MainConfig !== 'undefined' && MainConfig
+                ? MainConfig.password_reset_cooldown_minutes
+                : undefined;
+        const cooldownMs =
+            (typeof configuredCooldown === 'number' ? configuredCooldown : 15) *
+            60 * 1000;
+        const sock = this.connection && this.connection._connection;
+        const ip = sock && sock.remoteAddress ? sock.remoteAddress : '';
+        const ipTimes = (resetByIp.get(ip) || []).filter(
+            (t) => now - t < RESET_IP_WINDOW_MS
+        );
+        if (ipTimes.length >= RESET_IP_LIMIT) {
+            send('resetwait');
+            return;
+        }
+        ipTimes.push(now);
+        resetByIp.set(ip, ipTimes);
+
+        // Same answer whatever happens next (see above).
+        send('passwordreset');
+
+        const last = resetByName.get(name);
+        if (last !== undefined && now - last < cooldownMs) {
+            console.info('Forgot password: ' + name + ' is in its cooldown');
+            return;
+        }
+
+        DBLogic.getUserEmail(name, (stored) => {
+            if (!stored || stored.toLowerCase() !== email.toLowerCase()) {
+                console.info('Forgot password: no match for ' + name);
+                return;
+            }
+            const tempPassword = makeTempPassword();
+            // Stored the way a login sends it: the clients hash sha1(username +
+            // password) (hex) before encrypting it, and that's what gets bcrypted.
+            const loginValue = crypto
+                .createHash('sha1')
+                .update(name + tempPassword)
+                .digest('hex');
+            bcrypt.hash(loginValue, BCRYPT_SALT_ROUNDS, (err, bcryptHash) => {
+                if (err) {
+                    console.error(
+                        'handleForgotPassword - bcrypt.hash failed: ' + err.message
+                    );
+                    return;
+                }
+                const serverName =
+                    (typeof MainConfig !== 'undefined' &&
+                        MainConfig &&
+                        MainConfig.server_name) ||
+                    'Land of Mana';
+                const text =
+                    'Hello ' + name + ',\n\n' +
+                    'A new password was requested for your ' + serverName +
+                    ' account.\n\n' +
+                    'Your temporary password is: ' + tempPassword + '\n\n' +
+                    'Log in with it, then choose a new password with the PASSWORD ' +
+                    'button on the character screen. Your old password no longer works.\n\n' +
+                    'If you did not ask for this, log in with the temporary password ' +
+                    'and change it.\n';
+                sendMail(
+                    stored,
+                    serverName + ' - your temporary password',
+                    text,
+                    (ok) => {
+                        if (!ok) return; // keep the old password
+                        resetByName.set(name, Date.now());
+                        DBLogic.savePassword(name, bcryptHash, '');
+                        loginFailures.delete(loginKey({ connection: this.connection, name }));
+                        console.info('Forgot password: temporary password sent for ' + name);
+                    }
+                );
+            });
         });
     }
 

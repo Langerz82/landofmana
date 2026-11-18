@@ -43,6 +43,9 @@ const INFO_KEYS := {
 	"invalidusername": "USERNAME_INVALID_CHARS",
 	"invalidemail": "EMAIL_INVALID",
 	"passwordfail": "PASSWORD_CHANGE_FAILED",
+	"passwordreset": "PASSWORD_RESET_SENT",
+	"resetwait": "PASSWORD_RESET_WAIT",
+	"mailunavailable": "MAIL_UNAVAILABLE",
 	"invalidname": "PLAYERNAME_ALPHANUMERIC",
 	"loggedin": "USER_ALREADY_LOGGEDIN",
 	"ban": "USER_BANNED",
@@ -78,6 +81,13 @@ var _password_box: VBoxContainer
 var _cp_new: LineEdit
 var _cp_new2: LineEdit
 var _cp_btn: Button
+## Forgot-password window: opened by "Forgot password?" on the login box (see
+## _show_forgot / _try_forgot). Username + e-mail; the user server e-mails a
+## temporary password if they match an account.
+var _forgot_box: VBoxContainer
+var _fp_user: LineEdit
+var _fp_email: LineEdit
+var _fp_btn: Button
 var _player_box: VBoxContainer
 var _world_select: OptionButton
 var _player_list: ItemList
@@ -122,6 +132,10 @@ func _ready() -> void:
 	_password_box.add_theme_constant_override("separation", 6)
 	_password_box.visible = false
 	v.add_child(_password_box)
+	_forgot_box = VBoxContainer.new()
+	_forgot_box.add_theme_constant_override("separation", 6)
+	_forgot_box.visible = false
+	v.add_child(_forgot_box)
 	_player_box = VBoxContainer.new()
 	_player_box.add_theme_constant_override("separation", 6)
 	_player_box.visible = false
@@ -142,6 +156,7 @@ func _ready() -> void:
 	_build_login()
 	_build_register()
 	_build_change_password()
+	_build_forgot()
 	_build_players()
 	var version := Label.new()
 	version.text = "Godot client %s  -  protocol v%d" % [ProjectSettings.get_setting("application/config/version", "0"), Config.get_version()]
@@ -256,6 +271,12 @@ func _build_login() -> void:
 	_register_btn.pressed.connect(_show_register)
 	buttons.add_child(_register_btn)
 	_login_box.add_child(buttons)
+	var forgot := Button.new()
+	forgot.text = "Forgot password?"
+	forgot.flat = true
+	forgot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	forgot.pressed.connect(_show_forgot)
+	_login_box.add_child(forgot)
 	_set_login_enabled(false)
 
 
@@ -321,6 +342,35 @@ func _build_change_password() -> void:
 	_password_box.add_child(buttons)
 
 
+func _build_forgot() -> void:
+	var title := Label.new()
+	title.text = "Forgot password"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 20)
+	_forgot_box.add_child(title)
+	_fp_user = _field(_forgot_box, "Username")
+	_fp_user.max_length = 16
+	_fp_email = _field(_forgot_box, "E-mail")
+	_fp_email.max_length = 254
+	_fp_email.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_EMAIL_ADDRESS
+	for e: LineEdit in [_fp_user, _fp_email]:
+		e.text_submitted.connect(func(_t): _try_forgot())
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 12)
+	var back := Button.new()
+	back.text = "Back"
+	back.custom_minimum_size = Vector2(140, 34)
+	back.pressed.connect(_show_login)
+	buttons.add_child(back)
+	_fp_btn = Button.new()
+	_fp_btn.text = "Send"
+	_fp_btn.custom_minimum_size = Vector2(140, 34)
+	_fp_btn.pressed.connect(_try_forgot)
+	buttons.add_child(_fp_btn)
+	_forgot_box.add_child(buttons)
+
+
 func _build_players() -> void:
 	var wl := HBoxContainer.new()
 	var l := Label.new()
@@ -373,6 +423,7 @@ func connect_user_server() -> void:
 	_login_box.visible = true
 	_register_box.visible = false
 	_password_box.visible = false
+	_forgot_box.visible = false
 	_player_box.visible = false
 	uc = UserClient.new()
 	uc.name = "UserClient"
@@ -404,6 +455,8 @@ func _set_login_enabled(on: bool) -> void:
 		_reg_create_btn.disabled = not on
 	if _cp_btn:
 		_cp_btn.disabled = not on
+	if _fp_btn:
+		_fp_btn.disabled = not on
 
 
 func _try_login() -> void:
@@ -434,16 +487,48 @@ func _show_register() -> void:
 	_status.text = "Choose a username and password. The e-mail is optional."
 
 
-## Back to the login box from the create-account window, keeping the username
-## typed there.
+## Back to the login box from the create-account or forgot-password window,
+## keeping the username typed there.
 func _show_login() -> void:
-	if _reg_user.text.strip_edges() != "":
+	if _register_box.visible and _reg_user.text.strip_edges() != "":
 		_user.text = _reg_user.text.strip_edges()
+	if _forgot_box.visible and _fp_user.text.strip_edges() != "":
+		_user.text = _fp_user.text.strip_edges()
 	_reg_pass.text = ""
 	_reg_pass2.text = ""
 	_register_box.visible = false
+	_forgot_box.visible = false
 	_login_box.visible = true
 	_status.text = ""
+
+
+## Opens the forgot-password window in place of the login box, carrying over
+## the username typed there.
+func _show_forgot() -> void:
+	_fp_user.text = _user.text.strip_edges()
+	_login_box.visible = false
+	_forgot_box.visible = true
+	_status.text = "Enter your username and the e-mail saved on your account."
+
+
+func _try_forgot() -> void:
+	if not _ready_for_login:
+		return
+	var name_t := _fp_user.text.strip_edges()
+	var email := _fp_email.text.strip_edges()
+	var alnum := RegEx.create_from_string("^[A-Za-z0-9]+$")
+	if name_t.length() < 2 or name_t.length() > 16:
+		_status.text = GameData.tr_lang("USERNAME_LENGTH")
+		return
+	if alnum.search(name_t) == null:
+		_status.text = GameData.tr_lang("USERNAME_ALPHANUMERIC")
+		return
+	if not _valid_email(email):
+		_status.text = GameData.tr_lang("EMAIL_REQUIRED")
+		return
+	_set_login_enabled(false)
+	_status.text = "Sending..."
+	uc.send_forgot_password(name_t, email)
 
 
 ## Opens the change-password window over the character list (logged in).
@@ -582,6 +667,13 @@ func _on_info(code: String) -> void:
 	var msg := GameData.tr_lang(key) if key != "" else code
 	if msg == key:
 		msg = code
+	if code == "invalidemail" and _forgot_box.visible:
+		msg = GameData.tr_lang("EMAIL_REQUIRED")
+	if code == "passwordreset":
+		# Same answer whether or not anything matched -- back to the login box
+		# with the username filled in, ready for the temporary password.
+		_show_login()
+		_pass.text = ""
 	if code == "passwordChanged":
 		# Saved by the user server -- back to the character list, still logged in.
 		_show_players()
@@ -596,5 +688,6 @@ func _on_error(text: String) -> void:
 	_login_box.visible = true
 	_register_box.visible = false
 	_password_box.visible = false
+	_forgot_box.visible = false
 	_player_box.visible = false
 	_status.text = text + "\nCheck the server address and press Connect."

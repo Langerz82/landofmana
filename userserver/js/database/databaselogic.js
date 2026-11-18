@@ -159,6 +159,21 @@ class DatabaseLogic {
         return data;
     }
 
+    // Forgot-password window (user.js handleForgotPassword): callback(email) with the
+    // account's stored e-mail ('' if it has none), or callback(null) if there is no
+    // such account.
+    getUserEmail(username, callback) {
+        this.dbh.ExistsUsername(username, (name, res) => {
+            if (!res) {
+                callback(null);
+                return;
+            }
+            this.dbh.loadUserInfo(username, (uname, data) => {
+                callback(data && data.email ? String(data.email) : '');
+            });
+        });
+    }
+
     removeUser(user) {
         this.dbh.loadUserInfo(user.name, (username, data) => {
             const db_user = {

@@ -28,5 +28,12 @@
   "database": "redis",
   "version":120,
   "verify_email": "",
-  "verify_key": ""
+  "verify_key": "",
+  "smtp_host": "",
+  "smtp_port": 587,
+  "smtp_secure": false,
+  "smtp_user": "",
+  "smtp_password": "",
+  "mail_from": "",
+  "password_reset_cooldown_minutes": 15
 }

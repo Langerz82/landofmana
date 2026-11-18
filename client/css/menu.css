@@ -515,3 +515,80 @@
 #changepw_submit {
     right: 3%;
 }
+
+/* "Forgot password?" link on the login window, and the forgot-password
+   window it opens (same layout as #password_window). */
+#user_forgot {
+    position: absolute;
+    top: 206px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: "GraphicPixel";
+    font-size: 16px;
+    text-decoration: underline;
+    cursor: pointer;
+    pointer-events: auto;
+}
+#forgot_window {
+    display: none;
+    position: absolute;
+    width: 350px;
+    height: 340px;
+    top: 50%;
+    left: 50%;
+    margin-left: -175px;
+    margin-top: -170px;
+    color: white;
+    font-size: 18px;
+    z-index: 5;
+}
+#forgot_window input {
+    position: absolute;
+    left: 150px;
+    width: 50%;
+    font-family: "GraphicPixel";
+    font-size: 18px;
+    text-align: center;
+    color: #000;
+}
+#forgot_window input:focus {
+    color: #000;
+}
+#forgot_window input.field-error {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #f84444;
+}
+#lbl_forgot_name,
+#lbl_forgot_email {
+    position: absolute;
+    width: 120px;
+    text-align: right;
+    left: 10px;
+}
+#lbl_forgot_name,
+#forgot_name {
+    top: 15px;
+}
+#lbl_forgot_email,
+#forgot_email {
+    top: 60px;
+}
+#forgot_window .validation-summary {
+    top: 110px;
+}
+#forgot_back,
+#forgot_submit {
+    position: absolute;
+    bottom: 0;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
+}
+#forgot_back {
+    left: 3%;
+}
+#forgot_submit {
+    right: 3%;
+}
