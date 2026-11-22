@@ -210,7 +210,7 @@ class World {
                         // change-points notification internally via
                         // sendChangePoints(), so this wasn't a missed
                         // notification, just a dead local.
-                        player.modHp(Math.floor(player.stats.hpMax / 8));
+                        player.modHp(Math.floor(player.stats.hpMax / 6));
                     }
                 }
             };
