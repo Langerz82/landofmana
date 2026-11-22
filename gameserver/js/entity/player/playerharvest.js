@@ -74,6 +74,10 @@ class PlayerHarvest {
         const type = p.items.getWeaponType();
 
         p.isHarvesting = true;
+        // Where the harvest is (for cancel()'s stop message) and where the
+        // player stood when it started (a move off it cancels).
+        p.harvestTarget = [x, y];
+        p.harvestStartPos = [px, py];
 
         let exp = p.stats.exp.logging;
         if (type === 'hammer') exp = p.stats.exp.mining;
@@ -105,6 +109,11 @@ class PlayerHarvest {
             let complete = true;
 
             if (!p.isHarvesting) complete = false;
+            // This harvest is over either way.
+            p.isHarvesting = false;
+            p.harvestTimeout = null;
+            p.harvestTarget = null;
+            p.harvestStartPos = null;
 
             if (!(p.x === px && p.y === py)) complete = false;
 
@@ -214,6 +223,42 @@ class PlayerHarvest {
             duration,
             type
         );
+    }
+
+    // The player moved or attacked: stop the harvest now instead of letting
+    // its timer run out (it used to only be checked when the timer fired, so
+    // walking away and back before then still completed it). Also drops a
+    // harvest queued while the player was walking to it. Nearby players get
+    // the stop (WC_HARVEST action 2); the player's own client stopped its
+    // harvest itself, and a stop sent to it would also halt the movement it
+    // just started.
+    cancel() {
+        const p = this.player;
+        p.harvestQueue = null;
+        if (!p.isHarvesting) return;
+
+        Scheduler.cancel(p.harvestTimeout);
+        p.harvestTimeout = null;
+        p.isHarvesting = false;
+
+        const target = p.harvestTarget;
+        p.harvestTarget = null;
+        p.harvestStartPos = null;
+        if (target && p.map)
+            p.map.entities.sendNeighbours(
+                p,
+                new Messages.Harvest(p, 2, target[0], target[1]),
+                p
+            );
+    }
+
+    // Moved to (x, y): cancel the harvest when that's off the spot it was
+    // started from.
+    cancelIfMovedFrom(x, y) {
+        const p = this.player;
+        const start = p.harvestStartPos;
+        if (p.isHarvesting && start && (start[0] !== x || start[1] !== y))
+            this.cancel();
     }
 
     _abortHarvest(x, y) {

@@ -55,6 +55,12 @@ class SkillActionHandler {
         )
             return;
 
+        // An attack skill cancels a harvest; self skills (buffs, heals) don't.
+        if (
+            !(skill && skill.skillData && skill.skillData.targetType === 'self')
+        )
+            p.harvest.cancel();
+
         // Perform the skill.
         let target;
         if (targetId) {

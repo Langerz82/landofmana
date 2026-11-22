@@ -49,6 +49,9 @@ class CombatHandler {
 
         if (p.isDead || !p.map) return;
 
+        // Attacking cancels a harvest right away.
+        p.harvest.cancel();
+
         // Attack rate: one attack every ATTACK_INTERVAL (1000ms), timed
         // against when the next attack is due rather than the gap since the
         // last packet. This used to drop any attack arriving less than

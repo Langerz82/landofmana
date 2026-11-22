@@ -132,6 +132,10 @@ class MovementHandler {
         }
 
         p.fixMove(x, y);
+        // Walking (key pressed) cancels a harvest; a stop cancels it only when
+        // the player ended up off the spot it was started from.
+        if (state === 1) p.harvest.cancel();
+        else p.harvest.cancelIfMovedFrom(x, y);
         if (state === 2) return;
         if (state === 1) p.startKeyMove(orientation);
 
@@ -159,6 +163,10 @@ class MovementHandler {
             p.resetMove(p.x, p.y);
             return;
         }
+
+        // A new click-to-move path cancels a running harvest, and a harvest
+        // queued for the end of an earlier path (worldactionhandler.js).
+        p.harvest.cancel();
 
         p.fixMove(path[0][0], path[0][1]);
         p.movePath([time, interrupted], path);
