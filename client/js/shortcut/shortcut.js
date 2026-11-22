@@ -30,7 +30,8 @@ let DragShortcut = null; // FIX: was a bare global assignment (no var), which th
 // trigger the slot's click) should put on the bar instead of running the
 // shortcut: a skill highlighted in the open skills window
 // ({type: 2, id: skillIndex}) or an item highlighted in the open inventory
-// ({type: 1, id: itemKind}, id -1 when it isn't a potion / food). null when
+// ({type: 1, id: itemKind}, id -1 when it isn't a potion / food / weapon).
+// A weapon shortcut equips that weapon when triggered. null when
 // nothing is waiting, so the press runs the shortcut.
 // FIX: setup() used to take any DragItem as an inventory item
 // (game.inventory.rooms[DragItem.slot]) - a highlighted bank or equipment
@@ -38,6 +39,18 @@ let DragShortcut = null; // FIX: was a bare global assignment (no var), which th
 // number on the bar. And a skill left highlighted after the skills window was
 // closed (Escape, the menu button) turned the next shortcut press into an
 // assign instead of running it.
+// Item kinds that can go on the bar: potions / food (used) and weapons
+// (equipped, see Shortcut.exec()).
+function isShortcutItem(kind) {
+    return ItemTypes.isConsumableItem(kind) || ItemTypes.isWeapon(kind);
+}
+
+// A weapon shortcut: no cooldown, and the slot stays lit while that weapon is
+// equipped even though it's no longer in the inventory.
+function isWeaponShortcut(type, id) {
+    return type === 1 && ItemTypes.isWeapon(id);
+}
+
 function shortcutPick() {
     if (ShortcutData && $('#skillsDialog').is(':visible'))
         return { type: 2, id: ShortcutData.index };
@@ -50,9 +63,7 @@ function shortcutPick() {
         if (item)
             return {
                 type: 1,
-                id: ItemTypes.isConsumableItem(item.itemKind)
-                    ? item.itemKind
-                    : -1
+                id: isShortcutItem(item.itemKind) ? item.itemKind : -1
             };
     }
     return null;
@@ -156,7 +167,9 @@ export default class Shortcut {
         this.type = type;
         this.shortcutId = id;
 
-        if (this.type === 1) {
+        if (isWeaponShortcut(this.type, id)) {
+            this.cooldownTime = 0;
+        } else if (this.type === 1) {
             this.cooldownTime = ItemTypes.KindData[id].cooldown;
         } else if (this.type === 2) {
             this.cooldownTime = ~~(SkillData.Data[id].recharge / 1000);
@@ -171,6 +184,7 @@ export default class Shortcut {
 
     display() {
         this.jqNum.css('display', 'block');
+        this.jqBody.css('opacity', 1);
         this.jqBody.css('display', 'block');
 
         if (this.type === 1) {
@@ -178,6 +192,19 @@ export default class Shortcut {
             const item = { itemKind: this.shortcutId, itemNumber: count };
             Items.jqShowItem(this.jqBody, item, this.jqBody, 1);
             this.jqBody.css('transform', 'scale(' + 56 / 48 + ')');
+            // Weapons: dim the slot when that weapon is neither in the
+            // inventory nor already equipped (nothing to equip).
+            let dim = false;
+            if (isWeaponShortcut(this.type, this.shortcutId)) {
+                const weapon =
+                    game.equipment && game.equipment.getWeapon
+                        ? game.equipment.getWeapon()
+                        : null;
+                const equipped =
+                    weapon && weapon.itemKind === this.shortcutId;
+                dim = count === 0 && !equipped;
+            }
+            this.jqBody.css('opacity', dim ? 0.5 : 1);
             return;
         } else if (this.type === 2) {
             // Temp not Working
@@ -193,7 +220,15 @@ export default class Shortcut {
 
         let res = false;
         // display cooldown for all
-        if (this.type === 1) {
+        if (isWeaponShortcut(this.type, this.shortcutId)) {
+            // Equip the first matching weapon in the inventory (the old one
+            // goes back into the inventory). Nothing to do when it's already
+            // equipped / not carried. Weapons have no shortcut cooldown.
+            const item = game.inventory.getItemByKind(this.shortcutId);
+            if (item) game.inventory.useItem(0, item);
+            this.display();
+            return;
+        } else if (this.type === 1) {
             const item = game.inventory.getItemByKind(this.shortcutId);
             if (item) res = game.inventory.useItem(0, item);
         } else if (this.type === 2) {

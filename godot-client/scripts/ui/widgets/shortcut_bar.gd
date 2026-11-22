@@ -17,9 +17,10 @@
 
 class_name ShortcutBar
 extends PanelContainer
-## Shortcut bar (shortcut/*.js): six slots for consumables (type 1) and
-## skills (type 2), keys 1-6, cooldown display, drag to install/swap, plus
-## the attack button (#attack-shortcut).
+## Shortcut bar (shortcut/*.js): six slots for consumables and weapons
+## (type 1; a weapon is equipped when triggered) and skills (type 2), keys
+## 1-6, cooldown display, drag to install/swap, plus the attack button
+## (#attack-shortcut).
 
 var data: PlayerData
 var actions: ItemActions
@@ -56,7 +57,7 @@ func _rebuild_box() -> void:
 			s.pressed.connect(_on_slot_pressed)
 			s.secondary.connect(func(sl: ItemSlot): actions.install_shortcut(sl.index, 0, -1))
 			s.dropped.connect(_on_dropped)
-			s.tooltip_text = "Shortcut %d (key %d). Select a skill or potion and click here (or drag it here); right click to clear." % [i + 1, i + 1]
+			s.tooltip_text = "Shortcut %d (key %d). Select a skill, potion or weapon and click here (or drag it here); right click to clear." % [i + 1, i + 1]
 			slots.append(s)
 		# Attack button: a shortcut slot (same background) with the sword in the centre.
 		_attack = ItemSlot.new()
@@ -90,6 +91,7 @@ func bind(w, d: PlayerData, a: ItemActions) -> void:
 	actions = a
 	d.shortcuts_changed.connect(refresh)
 	d.skills_changed.connect(refresh)
+	d.equipment_changed.connect(refresh)   # weapon shortcuts track what's equipped
 	refresh()
 
 
@@ -107,7 +109,14 @@ func refresh() -> void:
 		var sc: Dictionary = data.shortcuts[i]
 		var t := int(sc.type)
 		var id := int(sc.id)
-		if t == 1 and id > 0:
+		if t == 1 and id > 0 and ItemTypes.is_weapon(id):
+			# No count; dimmed when there's nothing to equip (not carried and
+			# not the weapon already in hand).
+			var carried := data.item_total_count(id) > 0
+			s.set_item(ItemTypes.icon(id), "")
+			s.set_dimmed(not carried and data.weapon_kind() != id)
+			s.payload = {"type": t, "id": id}
+		elif t == 1 and id > 0:
 			var n := data.item_total_count(id)
 			s.set_item(ItemTypes.icon(id), str(n))
 			s.set_dimmed(n == 0)
@@ -144,10 +153,10 @@ func press(index: int) -> void:
 	if hud and hud.has_method("take_shortcut_pick"):
 		var pick: Dictionary = hud.take_shortcut_pick()
 		if not pick.is_empty():
-			if pick.get("consumable", true):
+			if pick.get("allowed", true):
 				actions.install_shortcut(index, int(pick.type), int(pick.id))
 			else:
-				hud.add_notification("Only potions and food can go on the shortcut bar.")
+				hud.add_notification("Only potions, food and weapons can go on the shortcut bar.")
 			return
 	actions.exec_shortcut(index)
 
@@ -156,7 +165,7 @@ func _on_dropped(s: ItemSlot, d: Dictionary) -> void:
 	match str(d.drag):
 		"item":
 			var r = data.get_room(int(d.store), int(d.slot))
-			if r != null and int(d.store) == 0 and ItemTypes.is_consumable(int(r.kind)):
+			if r != null and int(d.store) == 0 and ItemTypes.is_shortcut_item(int(r.kind)):
 				actions.install_shortcut(s.index, 1, int(r.kind))
 		"skill":
 			actions.install_shortcut(s.index, 2, int(d.slot))

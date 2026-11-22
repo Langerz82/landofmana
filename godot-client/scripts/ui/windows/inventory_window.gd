@@ -261,14 +261,15 @@ func _select(t: int, i: int) -> void:
 
 
 ## The selected inventory item, for "click an item, then a shortcut slot".
-## Returns {type: 1, id: kind} for a consumable, {} otherwise.
+## Returns {type: 1, id: kind, allowed} ({} with nothing selected); allowed
+## is true for consumables and weapons (ItemTypes.is_shortcut_item).
 func shortcut_pick() -> Dictionary:
 	if not visible or actions.mode != ItemActions.Mode.NORMAL or sel_type != PlayerData.Store.INVENTORY or sel_slot < 0:
 		return {}
 	var r = data.get_room(sel_type, sel_slot)
 	if r == null:
 		return {}
-	return {"type": 1, "id": int(r.kind), "consumable": ItemTypes.is_consumable(int(r.kind))}
+	return {"type": 1, "id": int(r.kind), "allowed": ItemTypes.is_shortcut_item(int(r.kind))}
 
 
 func clear_shortcut_pick() -> void:

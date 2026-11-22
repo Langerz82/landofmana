@@ -18,7 +18,8 @@
 extends "res://tests/npc_dialogue_test.gd"
 ## Select a skill (skills window) or an item (inventory), then click a
 ## shortcut slot: the slot gets that skill / item type. Uses real mouse clicks.
-## The character needs a consumable (it buys a Flask if it has 100+ gold).
+## The character needs a consumable (it buys a Flask if it has 100+ gold); the
+## weapon checks run when it carries a spare weapon.
 ## Run: godot res://tests/shortcut_assign_test.tscn [-- --user=NAME --pass=PW]
 
 
@@ -79,18 +80,35 @@ func run() -> void:
 		check("item type assigned to shortcut 4", int(sc4.type) == 1 and int(sc4.id) == kind, str(sc4))
 		check("item selection cleared", inv.sel_slot == -1)
 		check("item not used by the click", data.item_total_count(kind) > 0)
-	# --------------------------------------------- non-consumable is refused
+	# --------------------------------------------- armor etc. is refused
 	var other := -1
 	for i in range(data.inventory.size()):
 		var r = data.inventory[i]
-		if r != null and not ItemTypes.is_consumable(int(r.kind)):
+		if r != null and not ItemTypes.is_shortcut_item(int(r.kind)):
 			other = i
 			break
 	if other >= 0:
 		var before: Dictionary = data.shortcuts[4].duplicate()
 		await click_ctrl(inv.inv_slots[other])
 		await click_ctrl(bar.slots[4])
-		check("equipment not assigned", data.shortcuts[4] == before, str(data.shortcuts[4]))
+		check("non-weapon equipment not assigned", data.shortcuts[4] == before, str(data.shortcuts[4]))
+		inv._deselect()
+	# --------------------------------------------- weapon -> shortcut 5, press equips it
+	var ws := -1
+	for i in range(data.inventory.size()):
+		var r = data.inventory[i]
+		if r != null and ItemTypes.is_weapon(int(r.kind)):
+			ws = i
+			break
+	if ws >= 0:
+		var wkind := int(data.inventory[ws].kind)
+		await click_ctrl(inv.inv_slots[ws])
+		await click_ctrl(bar.slots[4])
+		var sc5: Dictionary = data.shortcuts[4]
+		check("weapon assigned to shortcut 5", int(sc5.type) == 1 and int(sc5.id) == wkind, str(sc5))
+		check("weapon not equipped by the assign click", data.weapon_kind() != wkind or data.item_total_count(wkind) > 0)
+		bar.press(4)
+		check("weapon shortcut equips it", await until(func(): return data.weapon_kind() == wkind, 3000), "weapon %d" % data.weapon_kind())
 	# --------------------------------------------- newest selection wins
 	if skill >= 0 and cs >= 0:
 		sw.open()

@@ -71,6 +71,8 @@ func skill_cooldown_left(index: int) -> int:
 
 
 func cooldown_left(type: int, id: int) -> int:
+	if type == 1 and ItemTypes.is_weapon(id):
+		return 0   # weapon shortcuts (equip) have no cooldown
 	if type == 1:
 		return item_cooldown_left()
 	if type == 2:
@@ -309,7 +311,7 @@ func craft(craft_entry: Dictionary) -> void:
 
 # ------------------------------------------------------------- shortcuts
 
-## Shortcut.setup(): put an inventory consumable (type 1) or skill (type 2) on a slot.
+## Shortcut.setup(): put an inventory consumable / weapon (type 1) or skill (type 2) on a slot.
 func install_shortcut(slot: int, type: int, id: int) -> void:
 	if cooldown_left(int(data.shortcuts[slot].type), int(data.shortcuts[slot].id)) > 0:
 		return
@@ -339,6 +341,8 @@ func exec_shortcut(slot: int) -> bool:
 	if cooldown_left(t, id) > 0:
 		return false
 	if t == 1:
+		# A weapon equips the first matching one in the inventory (nothing to
+		# do when it's already equipped / not carried); consumables are used.
 		var r = data.find_item(id)
 		if r != null:
 			return use_item(0, int(r.slot))

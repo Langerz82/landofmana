@@ -69,6 +69,8 @@ export function installClientCallbacksInventory(proto) {
         }
         if (type === 2) {
             game.equipmentHandler.setEquipment(items);
+            // Weapon shortcuts dim / light up with what's equipped.
+            game.shortcuts.refresh();
         }
     };
 

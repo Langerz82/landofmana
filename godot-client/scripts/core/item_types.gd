@@ -73,6 +73,12 @@ static func is_equippable(kind: int) -> bool:
 	return is_equipment(kind)
 
 
+## Item kinds that can go on the shortcut bar: potions / food (used) and
+## weapons (equipped when the shortcut is triggered).
+static func is_shortcut_item(kind: int) -> bool:
+	return is_consumable(kind) or is_weapon(kind)
+
+
 static func is_consumable(kind: int) -> bool:
 	return type_of(kind) == "object"
 
