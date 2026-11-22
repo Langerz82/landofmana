@@ -35,6 +35,11 @@ import UserMessages from './usermessage.js';
 // main.js -- see the note above the class for why those are left as-is).
 import { Types, Utils } from './common.js';
 
+// Every new character starts with STARTER_FLASK_COUNT small health flasks
+// ("Flask +500 HP", shared/data/items2.json id 34) on shortcut 1.
+const STARTER_FLASK_KIND = 34;
+const STARTER_FLASK_COUNT = 10;
+
 // FIX: added for handleGameServerInfo()'s shared-secret comparison below --
 // plain `===` on a password/secret string short-circuits on the first
 // mismatched character, a timing side channel against the boundary that
@@ -649,7 +654,9 @@ class WorldHandler {
             '0,0', // pStats
             '77,0,151,50', // sprites
             '0,0', // colors
-            '{}', // shortcuts
+            // Shortcut 1 (slot 0): the starter flasks (type 1 = item, id =
+            // item kind), see handleCreatePlayerInventory().
+            JSON.stringify({ 0: [0, 1, STARTER_FLASK_KIND] }), // shortcuts
             '{}' // completeQuests
         ];
 
@@ -669,6 +676,17 @@ class WorldHandler {
     handleCreatePlayerItems(playername) {
         console.info('handleCreatePlayerItems');
         return '[]';
+    }
+
+    // A brand-new character's inventory: STARTER_FLASK_COUNT small health
+    // flasks in slot 0. Rows are [slot, kind, count, durability,
+    // durabilityMax, exp] (gameserver user/userhandler.js
+    // handleLoadPlayerItems()); consumables have no durability.
+    handleCreatePlayerInventory(playername) {
+        console.info('handleCreatePlayerInventory');
+        return JSON.stringify([
+            [0, STARTER_FLASK_KIND, STARTER_FLASK_COUNT, 0, 0, 0]
+        ]);
     }
 
     createPlayerToWorld(user, username, playername) {
@@ -736,7 +754,7 @@ class WorldHandler {
             data = self.handleCreatePlayerAchievements(playerName);
             checkLoadDataFull(3, data);
 
-            data = self.handleCreatePlayerItems(playerName);
+            data = self.handleCreatePlayerInventory(playerName);
             checkLoadDataFull(4, data);
 
             // BANK -- account-level now; a brand-new character should see
