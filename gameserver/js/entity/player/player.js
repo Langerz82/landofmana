@@ -18,6 +18,7 @@
 
 /* global log, databaseHandler, QuestStatus */
 import Character from '../character/character.js';
+import { installEffectMods } from '../character/effectstats.js';
 import Messages from '../../message.js';
 import SkillHandler from '../../skillhandler.js';
 import SkillEffectHandler from '../../effecthandler/effecthandler.js';
@@ -85,12 +86,9 @@ class Player extends Character {
             exp: {}
         };
 
-        this.stats.mod = {
-            attack: 0,
-            defense: 0,
-            damage: 0,
-            health: 0
-        };
+        // stats.mod.attack / defense / damage: what active skill effects
+        // add (entity/character/effectstats.js).
+        installEffectMods(this);
 
         this.skillHandler = new SkillHandler(this);
 

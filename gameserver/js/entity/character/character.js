@@ -30,6 +30,7 @@ import Utils from '../../utils.js';
 import { installCharacterCombat } from './charactercombat.js';
 import { installCharacterTargeting } from './charactertargeting.js';
 import { G_DEBUG } from '../../constants.js';
+import { installEffectMods } from './effectstats.js';
 
 class Character extends EntityMoving {
     constructor(id, type, kind, x, y, map) {
@@ -62,6 +63,7 @@ class Character extends EntityMoving {
         this.stats.hpMax = 0;
         this.stats.ep = 0;
         this.stats.epMax = 0;
+        installEffectMods(this);
 
         // Modes
         //    this.isDying = false;
@@ -166,9 +168,14 @@ class Character extends EntityMoving {
     // start of the call gets its endEffects() invoked exactly once, same
     // as the final `this.activeEffects = []` reset below already assumed
     // was happening.
+    //
+    // Ends each effect on THIS character only (SkillEffect.endFor()): an
+    // area buff / debuff that also hit others keeps going for them. It used
+    // to end the whole cast, so one party member dying ended the caster's
+    // party buff on everyone.
     endEffects() {
         for (const skilleffect of this.activeEffects.slice()) {
-            skilleffect.endEffects();
+            skilleffect.endFor(this);
         }
         this.activeEffects = [];
     }

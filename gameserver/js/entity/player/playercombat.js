@@ -47,8 +47,8 @@ class PlayerCombat {
     baseCrit() {
         const entity = this.entity;
 
-        let chance =
-            entity.level + entity.stats.luck / 4 + entity.stats.attack / 6;
+        const attack = entity.stats.attack + entity.stats.mod.attack;
+        let chance = entity.level + entity.stats.luck / 4 + attack / 6;
         const item = entity.items.getWeapon();
         if (item) {
             chance +=
@@ -74,7 +74,7 @@ class PlayerCombat {
         const chance =
             entity.level +
             entity.stats.luck / 4 +
-            entity.stats.defense / 6 +
+            (entity.stats.defense + entity.stats.mod.defense) / 6 +
             gear / 2;
         return ~~Utils.clamp(0, 500, chance);
     }
@@ -94,12 +94,10 @@ class PlayerCombat {
                 (weapon.itemDurability / weapon.itemDurabilityMax) * 0.5 + 0.5;
         }
 
-        // Player stats.
-        const mods =
-            entity.stats.mod && entity.stats.mod.attack
-                ? entity.stats.mod.attack
-                : 0;
-        const statDmg = entity.stats.attack * 3 + mods + entity.stats.luck;
+        // Player stats, with what active skill effects add (stats.mod --
+        // Berserker, ...; entity/character/effectstats.js).
+        const attack = entity.stats.attack + entity.stats.mod.attack;
+        const statDmg = attack * 3 + entity.stats.luck;
 
         // Attack + weapon skill levels (1-50 each) add up to +50%. Was a
         // multiplicative (1+lvl/50)^2 (up to 4x) on top of a newbie
@@ -111,8 +109,8 @@ class PlayerCombat {
         const base = (10 + level * 6 + weaponDmg + statDmg) * power;
         let dmg = Utils.randomRangeInt(~~(base * 0.9), ~~(base * 1.1));
 
-        if (entity.stats.mod && entity.stats.mod.damage)
-            dmg += entity.stats.mod.damage;
+        // Bonus damage from active skill effects (Explosive / Deadly Attack).
+        dmg += entity.stats.mod.damage;
 
         if (defender && defender instanceof Mob) {
             const type = entity.items.getWeaponType();
@@ -144,12 +142,9 @@ class PlayerCombat {
             }
         });
 
-        const mods =
-            entity.stats.mod && entity.stats.mod.defense
-                ? entity.stats.mod.defense
-                : 0;
-        const statDef =
-            entity.stats.defense * 2 + mods + entity.stats.luck / 2;
+        // With what active skill effects add (stats.mod -- Shield, ...).
+        const defense = entity.stats.defense + entity.stats.mod.defense;
+        const statDef = defense * 2 + entity.stats.luck / 2;
 
         // Defense skill level (1-50) adds up to +25%.
         const defLvl = Types.getDefenseLevel(entity.stats.exp.defense);

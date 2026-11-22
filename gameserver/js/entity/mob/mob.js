@@ -95,12 +95,8 @@ class Mob extends Character {
         //this.setHpMax();
         //this.setEpMax();
 
-        this.stats.mod = {
-            attack: 0,
-            defense: 0,
-            damage: 0,
-            health: 0
-        };
+        // stats.mod (what active skill effects add) is installed by
+        // Character, see entity/character/effectstats.js.
 
         this.hatelist = [];
         this.hateCount = 0;

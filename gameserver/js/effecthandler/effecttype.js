@@ -16,6 +16,8 @@
 // along with this program. See the LICENSE file in the project root,
 // or <https://www.gnu.org/licenses/>.
 
+import { effectTotal } from '../entity/character/effectstats.js';
+
 // Extracted from effecthandler.js: EffectType, the per-skill effect
 // definition (one instance shared by every cast of a given skill -- see
 // SkillData.Skills' construction in data/skilldata.js). Behavior unchanged.
@@ -71,6 +73,8 @@ export class EffectType {
                 val1 = target.stats.ep;
                 statmax = val2 = target.stats.epMax;
                 break;
+            // Percentages are of the stat itself (stats.attack, without
+            // stats.mod), so two % buffs don't compound off each other.
             case 'attack':
                 val2 = val1 = target.stats.attack;
                 break;
@@ -89,7 +93,10 @@ export class EffectType {
                 // that diff the same way applyStacking() uses attack/defense/damage
                 // diffs.
                 statmax = 0;
-                val2 = val1 = target.moveSpeed;
+                val2 = val1 =
+                    target.baseMoveSpeed !== undefined
+                        ? target.baseMoveSpeed
+                        : target.moveSpeed;
                 break;
             case 'damage':
                 // FIX: was `val1 = 0; val2 = damage;`. getModDiff() below only
@@ -234,85 +241,41 @@ export class EffectType {
         return;
     }
 
-    // Applies this effect's contribution to target.stats.mod[stat]
-    // additively instead of overwriting it, so multiple concurrently active
-    // effects on the same stat (from different casts, possibly different
-    // skills) stack instead of clobbering each other. `skillEffect` is the
-    // per-cast SkillEffect instance (unlike `this`, the EffectType, which is
-    // a shared singleton reused by every cast of this skill by every
-    // player/mob -- see SkillData.Skills' construction in skilldata.js), so
-    // it's the right place to remember exactly how much *this* cast added
-    // for *this* target/stat: on "end" (or any removal), we subtract that
-    // remembered amount instead of trusting the freshly-computed diff (which
-    // is always 0 for an "end" phase, since every skill's "end" entry uses
-    // modValue 0 -- see the FIX comment on the "slow" case below) to mean
-    // "reset to zero" for the whole shared stat.
+    // attack / defense / damage: record what this cast applies to the
+    // target on the cast itself (SkillEffect.setApplied()). stats.mod.attack
+    // etc. are summed from those (entity/character/effectstats.js), so
+    // there's no running mod total -- each cast's value simply stops counting
+    // when it ends on the target, and a recast of the same skill replaces
+    // the earlier one (SkillEffect.attach()) instead of stacking.
     applyStacking(skillEffect, target, stat) {
-        skillEffect.appliedMods = skillEffect.appliedMods || {};
-        const key = target.id + ':' + stat;
-        const prevApplied = skillEffect.appliedMods[key] || 0;
-        const newApplied = this.phase === 'end' ? 0 : this.diff;
-
-        target.stats.mod[stat] =
-            (target.stats.mod[stat] || 0) - prevApplied + newApplied;
-        skillEffect.appliedMods[key] = newApplied;
+        skillEffect.setApplied(
+            target,
+            stat,
+            this.phase === 'end' ? 0 : this.diff
+        );
     }
 
-    // Same per-cast stacking/reversal scheme as applyStacking() above, but for
-    // moveSpeed: moveSpeed isn't part of target.stats.mod (it's a plain
-    // property on the entity, set absolutely via setMoveRate() rather than
-    // read additively at use-time like stats.attack/defense), so the running
-    // total of active "slow" contributions is kept separately on
-    // target.moveSpeedMod and re-applied through setMoveRate() against a
-    // saved, never-modified target.baseMoveSpeed. This keeps walkSpeed/tick
-    // (setMoveRate()'s side effects) in sync the same way a normal
-    // construction-time or respawn-time speed change would.
+    // slow: same per-cast record, then moveSpeed is set from the target's
+    // never-modified base speed plus every active slow, through
+    // setMoveRate() (keeps walkSpeed / tick -- movevalidator.js's speed
+    // check -- in sync).
     applyMoveSpeedStacking(skillEffect, target) {
-        // Capture the entity's un-slowed speed once, before the first slow is
-        // ever applied to it, so repeated stacking/unstacking always computes
-        // off the real baseline instead of a previously-slowed value.
         if (target.baseMoveSpeed === undefined)
             target.baseMoveSpeed = target.moveSpeed;
-
-        skillEffect.appliedMods = skillEffect.appliedMods || {};
-        const key = target.id + ':moveSpeed';
-        const prevApplied = skillEffect.appliedMods[key] || 0;
-        const newApplied = this.phase === 'end' ? 0 : this.diff;
-
-        target.moveSpeedMod =
-            (target.moveSpeedMod || 0) - prevApplied + newApplied;
-        skillEffect.appliedMods[key] = newApplied;
-
-        target.setMoveRate(target.baseMoveSpeed + target.moveSpeedMod);
+        skillEffect.setApplied(
+            target,
+            'slow',
+            this.phase === 'end' ? 0 : this.diff
+        );
+        target.setMoveRate(target.baseMoveSpeed + effectTotal(target, 'slow'));
     }
 
-    // Same per-cast tracking idea as applyStacking()/applyMoveSpeedStacking()
-    // above, but for `freeze`: unlike those, freeze is a boolean rather than
-    // an additive numeric total, so what needs tracking per-cast isn't "how
-    // much did I contribute" but "am I currently one of the effects holding
-    // this target frozen". `target.freezeCount` is the number of
-    // currently-active skill-effect casts holding this target frozen;
-    // `target.freeze` (the flag every other system in the codebase actually
-    // reads/writes) is only cleared once that count reaches 0, so one
-    // effect's 'end' phase firing early can't cut a still-active second
-    // stun short. Keyed per (skillEffect instance, target) like the sibling
-    // helpers, so a given cast's own 'start' and 'end' calls -- which share
-    // one SkillEffect instance -- always pair up exactly once regardless of
-    // how many other casts are also tracked here.
+    // freeze: this cast holds the target frozen until its end; the target
+    // stays frozen while any active effect still holds it (one stun ending
+    // can't cut another one short).
     applyFreezeStacking(skillEffect, target) {
-        skillEffect.appliedMods = skillEffect.appliedMods || {};
-        const key = target.id + ':freeze';
-        const wasHolding = !!skillEffect.appliedMods[key];
-        const isHolding = this.phase !== 'end';
-
-        if (isHolding && !wasHolding) {
-            target.freezeCount = (target.freezeCount || 0) + 1;
-        } else if (!isHolding && wasHolding) {
-            target.freezeCount = Math.max(0, (target.freezeCount || 0) - 1);
-        }
-        skillEffect.appliedMods[key] = isHolding;
-
-        target.freeze = target.freezeCount > 0;
+        skillEffect.setApplied(target, 'freeze', this.phase === 'end' ? 0 : 1);
+        target.freeze = effectTotal(target, 'freeze') > 0;
     }
 
     getModDiff(skillEffect, stat, statmod, statmax) {

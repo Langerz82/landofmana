@@ -70,6 +70,79 @@ export class SkillEffect {
         // stopIntervalTicking() below).
         this.intervalToken = null;
         this.targets = [];
+        // What this cast applied to each entity it's active on:
+        // entity -> {stat: value}. Stat readers sum these over the entity's
+        // activeEffects (entity/character/effectstats.js), so there's no
+        // shared mod total that multiple casts could leave out of sync.
+        this.applied = new Map();
+    }
+
+    appliedValue(entity, stat) {
+        const values = this.applied.get(entity);
+        return (values && values[stat]) || 0;
+    }
+
+    setApplied(entity, stat, value) {
+        let values = this.applied.get(entity);
+        if (!values) {
+            values = {};
+            this.applied.set(entity, values);
+        }
+        if (value) values[stat] = value;
+        else delete values[stat];
+    }
+
+    // The entities this cast acts on: its targets for target effects, the
+    // caster for self effects.
+    affectedEntities() {
+        const out = [];
+        for (const effect of this.effectTypes) {
+            const list = effect.isTarget ? this.targets : [this.source];
+            for (const e of list) if (e && !out.includes(e)) out.push(e);
+        }
+        return out;
+    }
+
+    isActiveOn(entity) {
+        return !!entity.activeEffects && entity.activeEffects.includes(this);
+    }
+
+    // Start acting on `entity`. The same skill doesn't stack: an earlier
+    // cast of it still active on the entity (from anyone) is ended there
+    // first, so a recast refreshes the effect instead of doubling it.
+    attach(entity) {
+        if (!entity.activeEffects) return;
+        for (const other of entity.activeEffects.slice()) {
+            if (other !== this && other.skillId === this.skillId)
+                other.endFor(entity);
+        }
+        if (!entity.activeEffects.includes(this))
+            entity.activeEffects.push(this);
+    }
+
+    // End this cast on `entity` only (it died / left, or the same skill was
+    // recast on it); the cast carries on for its other targets.
+    endFor(entity) {
+        if (!this.isActiveOn(entity)) return;
+        for (const effect of this.effectTypes) {
+            if (effect.phase !== 'end') continue;
+            const affects = effect.isTarget
+                ? this.targets.includes(entity)
+                : this.source === entity;
+            if (affects) effect.apply(this, entity, 'end', 0);
+        }
+        entity.activeEffects.splice(entity.activeEffects.indexOf(this), 1);
+        this.applied.delete(entity);
+        this.targets = this.targets.filter((t) => t !== entity);
+        if (!this.affectedEntities().some((e) => this.isActiveOn(e)))
+            this._finish();
+    }
+
+    _finish() {
+        this.count = 0;
+        this.activeTimer = 0;
+        this.stopIntervalTicking();
+        this.handler.removeSkillEffect(this);
     }
 
     getTargets(target, x, y) {
@@ -115,8 +188,10 @@ export class SkillEffect {
 
         if (this.countTotal > 0) this.count = 0;
 
-        this.targets = this.getTargets(target, targetX, targetY);
-        //this.isActive = true;
+        this.targets = this.getTargets(target, targetX, targetY).filter(
+            (t) => !!t
+        );
+        for (const e of this.affectedEntities()) this.attach(e);
         this.applyEffects('start', 0);
     }
 
@@ -157,19 +232,12 @@ export class SkillEffect {
         }
     }
 
+    // Only acts on entities this cast is active on (attach()ed in apply()
+    // and not ended there since), so a target it was ended on by endFor()
+    // doesn't get its later interval / end phases.
     applyEffect(effect, target, phase, damage) {
-        let index = target.activeEffects.indexOf(this);
-        if (phase === 'start' && index < 0) {
-            target.activeEffects.push(this);
-            index = target.activeEffects.indexOf(this);
-        }
-
+        if (!this.isActiveOn(target)) return;
         effect.apply(this, target, phase, damage);
-
-        //var index2 = target.activeEffects.indexOf(this);
-        if (phase === 'end' && index >= 0) {
-            target.activeEffects.splice(index, 1);
-        }
     }
 
     applyEffects(phase, damage) {
@@ -186,14 +254,16 @@ export class SkillEffect {
         }
 
         if (phase === 'end') {
-            this.count = 0;
-            this.activeTimer = 0;
-            // PERF: cancel any pending reschedule now that this effect is done
-            // -- a harmless no-op if none is pending (e.g. a duration===0
-            // effect never had one, or _tickInterval() itself is what got us
-            // here and already didn't reschedule).
-            this.stopIntervalTicking();
-            this.handler.removeSkillEffect(this);
+            for (const e of this.affectedEntities()) {
+                const index = e.activeEffects ? e.activeEffects.indexOf(this) : -1;
+                if (index >= 0) e.activeEffects.splice(index, 1);
+            }
+            this.applied.clear();
+            // PERF: _finish() cancels any pending reschedule now that this
+            // effect is done -- a harmless no-op if none is pending (e.g. a
+            // duration===0 effect never had one, or _tickInterval() itself
+            // is what got us here and already didn't reschedule).
+            this._finish();
         }
     }
 

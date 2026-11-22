@@ -55,7 +55,8 @@ class MobCombat {
     baseDamage() {
         const entity = this.entity;
         const attack = entity.stats.attack + entity.stats.mod.attack;
-        const base = 10 + entity.level * 6.5 + attack * 2.75;
+        const base =
+            10 + entity.level * 6.5 + attack * 2.75 + entity.stats.mod.damage;
         return Utils.randomRangeInt(~~(base * 0.9), ~~(base * 1.1));
     }
 
