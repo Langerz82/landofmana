@@ -41,7 +41,13 @@ export function installLocalPlayerOverrides(player) {
     };
 
     player.forceStop = function () {
+        // Harvest ending (finished, aborted by the server, or cancelled here
+        // by moving / attacking): put back the weapon an auto-swap replaced
+        // (gameinteractioncombat.js ensureHarvestWeapon()).
+        const wasHarvesting =
+            this.fsm === 'HARVEST' || this.startHarvestTime > 0;
         this.harvestOff();
+        if (wasHarvesting) game.restoreHarvestWeapon();
         // FIX: this used to gate the stop packet on `this.isMoving()` (the local
         // movement.inProgress transition flag). startKeyMovement() sends the
         // "start moving" packet synchronously on key-down, before the movement

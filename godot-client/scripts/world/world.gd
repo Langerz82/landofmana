@@ -1314,9 +1314,9 @@ func process_input(px: int, py: int, click_move: bool) -> void:
 	if e != null and not e.is_dying:
 		player_interact(e)
 		return
-	var wtype = data.weapon_type()
-	if current_map.is_colliding(px, py) and wtype != null \
-			and current_map.is_harvest_tile(px >> 4, py >> 4, str(wtype)) and p.is_next_too_tile(px, py):
+	var htype := current_map.harvest_tile_type(px >> 4, py >> 4)
+	if current_map.is_colliding(px, py) and htype != "" and can_harvest_with(htype) \
+			and p.is_next_too_tile(px, py):
 		make_player_harvest(px, py)
 		return
 	if click_move:
@@ -1394,7 +1394,7 @@ func make_player_harvest_entity(e) -> void:
 	if not p.is_next_too_entity(e):
 		p.follow(e)
 		return
-	if not data.has_harvest_weapon(e.weapon_type if str(e.weapon_type) != "" else "any"):
+	if not ensure_harvest_weapon(str(e.weapon_type) if str(e.weapon_type) != "" else "any"):
 		hud.add_notification(GameData.tr_lang("HARVEST_WRONG_TYPE", [e.weapon_type]))
 		return
 	p.look_at_entity(e)
@@ -2304,36 +2304,134 @@ func release_keys() -> void:
 # Harvesting, blocks, misc packets (rest of the JS client)
 # ======================================================================
 
-## game.makePlayerHarvest(): use an axe/hammer on a tree / rock tile.
+## game.makePlayerHarvest(): use an axe/hammer on a tree / rock tile. The
+## right tool is equipped from the inventory first when needed.
 func make_player_harvest(px: int, py: int) -> void:
 	var p := player
-	if not data.has_harvest_weapon():
-		hud.add_notification(GameData.tr_lang("HARVEST_NO_WEAPON"))
+	var t := current_map.harvest_tile_type(px >> 4, py >> 4)
+	if t == "":
+		if data.has_harvest_weapon():
+			hud.add_notification(GameData.tr_lang("HARVEST_WRONG_TYPE", [data.weapon_type()]))
+		else:
+			hud.add_notification(GameData.tr_lang("HARVEST_NO_WEAPON"))
 		return
-	var t = data.weapon_type()
-	if t == null or not current_map.is_harvest_tile(px >> 4, py >> 4, str(t)):
-		hud.add_notification(GameData.tr_lang("HARVEST_WRONG_TYPE", [t]))
+	if not ensure_harvest_weapon(t):
+		if data.has_harvest_weapon():
+			hud.add_notification(GameData.tr_lang("HARVEST_WRONG_TYPE", [t]))
+		else:
+			hud.add_notification(GameData.tr_lang("HARVEST_NO_WEAPON"))
 		return
 	p.look_at_tile(px, py)
-	p.harvest_on(str(t))
+	p.harvest_on(t)
 	client.send_harvest(px, py)
+
+
+# ------------------------------------------------- harvest weapon auto-swap
+# Harvesting a node / tile that needs a weapon type the player isn't holding
+# equips one of that type from the inventory; when the harvest ends (done or
+# aborted) the weapon it replaced is equipped again. Equipping is a swap on
+# the server, so the old weapon lands in the tool's inventory slot.
+
+## {prev_kind, tool_kind, slot} while a swap is waiting to be undone.
+var _harvest_swap: Dictionary = {}
+
+
+## Inventory slot of the best weapon of type `t` ("axe", "hammer") the
+## player can equip, -1 if none. Weapons above the player's level are skipped
+## (the server refuses to equip them); then unbroken beats broken (durability
+## 0), then highest weapon level (modifier), enchant, durability.
+func harvest_weapon_slot(t: String) -> int:
+	var best := -1
+	var best_rank: Array = []
+	for i in range(data.inventory.size()):
+		var r = data.inventory[i]
+		if r == null:
+			continue
+		var k := int(r.kind)
+		if not ItemTypes.is_weapon(k) or ItemTypes.type_of(k) != t:
+			continue
+		var wlevel := int(ItemTypes.data(k).get("modifier", 0))
+		if wlevel > int(player.level):
+			continue
+		var rank := [1 if int(r.dur) > 0 else 0, wlevel, int(r.number), int(r.dur)]
+		if best < 0 or _rank_greater(rank, best_rank):
+			best = i
+			best_rank = rank
+	return best
+
+
+func _rank_greater(a: Array, b: Array) -> bool:
+	for i in range(a.size()):
+		if a[i] != b[i]:
+			return a[i] > b[i]
+	return false
+
+
+## Holding a weapon of type `t`, or carrying one to swap to.
+func can_harvest_with(t: String) -> bool:
+	return data.has_harvest_weapon(t) or harvest_weapon_slot(t) >= 0
+
+
+## Make sure a weapon of type `t` is (being) equipped. False when the player
+## has none.
+func ensure_harvest_weapon(t: String) -> bool:
+	if t == "any" or data.has_harvest_weapon(t):
+		return true
+	var slot := harvest_weapon_slot(t)
+	if slot < 0:
+		return false
+	var kind := int(data.inventory[slot].kind)
+	if _harvest_swap.is_empty():
+		_harvest_swap = {"prev_kind": data.weapon_kind(), "tool_kind": kind, "slot": slot}
+	else:
+		# Already swapped for an earlier harvest that hasn't been undone:
+		# keep the original weapon to go back to.
+		_harvest_swap.tool_kind = kind
+		_harvest_swap.slot = slot
+	actions.use_item(PlayerData.Store.INVENTORY, slot)
+	return true
+
+
+## The harvest ended: re-equip the weapon ensure_harvest_weapon() replaced.
+## Nothing when there was no swap, no weapon before it, or the player has
+## changed weapon since.
+func restore_harvest_weapon() -> void:
+	if _harvest_swap.is_empty():
+		return
+	var s := _harvest_swap
+	_harvest_swap = {}
+	var prev := int(s.prev_kind)
+	if prev <= 0 or data.weapon_kind() != int(s.tool_kind):
+		return
+	var slot := int(s.slot)
+	var r = data.inventory[slot] if slot >= 0 and slot < data.inventory.size() else null
+	if r == null or int(r.kind) != prev:
+		slot = -1
+		for i in range(data.inventory.size()):
+			var ri = data.inventory[i]
+			if ri != null and int(ri.kind) == prev:
+				slot = i
+				break
+	if slot >= 0:
+		actions.use_item(PlayerData.Store.INVENTORY, slot)
 
 
 func _try_interact_harvest_tiles() -> bool:
 	var p := player
 	if p.has_target():
 		return false
-	var t = data.weapon_type()
-	if t == null:
-		return false
+	# A harvest tile the player holds -- or carries -- the right weapon for.
+	var ok := func(x: int, y: int) -> bool:
+		var t := current_map.harvest_tile_type(x >> 4, y >> 4)
+		return t != "" and can_harvest_with(t)
 	var pos := p.next_tile()
-	if current_map.is_harvest_tile(pos.x >> 4, pos.y >> 4, str(t)):
+	if ok.call(pos.x, pos.y):
 		make_player_harvest(pos.x, pos.y)
 		return true
 	for spot in p.get_spots_around(p.x, p.y, 1):
 		if spot.x == pos.x and spot.y == pos.y:
 			continue
-		if current_map.is_harvest_tile(int(spot.x) >> 4, int(spot.y) >> 4, str(t)):
+		if ok.call(int(spot.x), int(spot.y)):
 			make_player_harvest(spot.x, spot.y)
 			return true
 	return false

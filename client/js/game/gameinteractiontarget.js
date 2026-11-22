@@ -170,8 +170,6 @@ export function installGameInteractionTarget(proto) {
 
         if (p.hasTarget()) return false;
 
-        const type = p.items.getWeaponType();
-        if (type === null) return false;
 
         // FIX: was a plain (non-arrow) function expression, called bare
         // below (fnProcessTile(...), not this.fnProcessTile(...)) -- in a
@@ -212,8 +210,11 @@ export function installGameInteractionTarget(proto) {
         // right before starting the harvest, immediately overwriting
         // whatever orientation this would have set.)
         const fnProcessTile = (x, y) => {
+            // A harvest tile the player holds -- or carries -- the right
+            // weapon for (makePlayerHarvest() swaps to it).
             const gpos = Utils.getGridPosition(x, y);
-            if (game.currentMap.isHarvestTile(gpos, type)) {
+            const type = game.currentMap.getHarvestTileType(gpos);
+            if (type !== null && game.canHarvestWith(type)) {
                 game.makePlayerHarvest(x, y);
                 return true;
             }

@@ -179,6 +179,15 @@ func get_camera_area(px: int, py: int, current = null) -> Variant:
 const HARVEST_TILE_TYPES := {"axe": [678, 679, 698, 699, 855, 875, 274, 275, 294, 295]}
 
 
+## The weapon type a tile is harvested with ("axe", ...), "" when it isn't
+## a harvest tile.
+func harvest_tile_type(gx: int, gy: int) -> String:
+	for wt in HARVEST_TILE_TYPES:
+		if is_harvest_tile(gx, gy, wt):
+			return wt
+	return ""
+
+
 func is_harvest_tile(gx: int, gy: int, weapon_type: String) -> bool:
 	if not HARVEST_TILE_TYPES.has(weapon_type):
 		return false

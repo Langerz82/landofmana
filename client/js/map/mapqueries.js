@@ -151,6 +151,15 @@ export function installMapQueries(proto) {
         );
     };
 
+    // The weapon type a tile is harvested with ('axe', ...), or null when it
+    // isn't a harvest tile.
+    proto.getHarvestTileType = function (pos) {
+        for (const type in HARVEST_TILE_TYPES) {
+            if (this.isHarvestTile(pos, type)) return type;
+        }
+        return null;
+    };
+
     proto.isHarvestTile = function (pos, type) {
         const tiles = this.getTiles(pos.gx, pos.gy);
         if (!tiles || tiles.length === 0) return false;

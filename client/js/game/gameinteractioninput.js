@@ -157,13 +157,14 @@ export function installGameInteractionInput(proto) {
         if (entity && !entity.isDying) {
             this.playerInteract(entity);
         } else {
-            const type = p.items.getWeaponType();
             const gpos = Utils.getGridPosition(px, py);
             const colliding = this.currentMap.isColliding(px, py);
+            const type = this.currentMap.getHarvestTileType(gpos);
 
             if (
                 colliding &&
-                this.currentMap.isHarvestTile(gpos, type) &&
+                type !== null &&
+                this.canHarvestWith(type) &&
                 p.isNextTooTile(px, py)
             ) {
                 this.makePlayerHarvest(px, py);

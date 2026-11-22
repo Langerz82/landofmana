@@ -190,7 +190,12 @@ func force_stop() -> void:
 	if not is_local:
 		super.force_stop()
 		return
+	# Harvest ending (finished, aborted by the server, or cancelled here by
+	# moving / attacking): put back the weapon an auto-swap replaced.
+	var was_harvesting := fsm == "HARVEST" or start_harvest_time > 0
 	harvest_off()
+	if was_harvesting and world != null:
+		world.restore_harvest_weapon()
 	if not is_moving_path():
 		if key_move_cb.is_valid():
 			key_move_cb.call(0)

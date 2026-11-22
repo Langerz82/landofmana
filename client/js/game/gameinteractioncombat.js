@@ -20,7 +20,7 @@
 // (makePlayerAttack, scheduleAttackRetry, makePlayerHarvestEntity, makePlayerHarvest).
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
 import Node from '../entity/node.js';
-/* global ATTACK_MAX, Utils, log, game */
+/* global ATTACK_MAX, Utils, log, game, ItemTypes */
 
 export function installGameInteractionCombat(proto) {
     proto.makePlayerAttack = function (entity) {
@@ -124,7 +124,7 @@ export function installGameInteractionCombat(proto) {
             return;
         }
 
-        if (!p.items.hasHarvestWeapon(entity.weaponType)) {
+        if (!this.ensureHarvestWeapon(entity.weaponType || 'any')) {
             game.showNotification([
                 'CHAT',
                 'HARVEST_WRONG_TYPE',
@@ -143,23 +143,27 @@ export function installGameInteractionCombat(proto) {
         this.client.sendHarvestEntity(entity);
     };
 
+    // The right tool is equipped from the inventory first when needed.
     proto.makePlayerHarvest = function (px, py) {
         const p = this.player;
 
-        if (!p.items.hasHarvestWeapon()) {
-            game.showNotification(['CHAT', 'HARVEST_NO_WEAPON']);
-            return;
-        }
-
-        const type = p.items.getWeaponType();
-        if (type === null) {
-            game.showNotification(['CHAT', 'HARVEST_WRONG_TYPE', type]);
-            return;
-        }
-
         const gpos = Utils.getGridPosition(px, py);
-        if (!this.currentMap.isHarvestTile(gpos, type)) {
-            game.showNotification(['CHAT', 'HARVEST_WRONG_TYPE', type]);
+        const type = this.currentMap.getHarvestTileType(gpos);
+        if (type === null) {
+            if (p.items.hasHarvestWeapon())
+                game.showNotification([
+                    'CHAT',
+                    'HARVEST_WRONG_TYPE',
+                    p.items.getWeaponType()
+                ]);
+            else game.showNotification(['CHAT', 'HARVEST_NO_WEAPON']);
+            return;
+        }
+
+        if (!this.ensureHarvestWeapon(type)) {
+            if (p.items.hasHarvestWeapon())
+                game.showNotification(['CHAT', 'HARVEST_WRONG_TYPE', type]);
+            else game.showNotification(['CHAT', 'HARVEST_NO_WEAPON']);
             return;
         }
 
@@ -167,5 +171,103 @@ export function installGameInteractionCombat(proto) {
         p.harvestOn(type);
 
         this.client.sendHarvest(px, py);
+    };
+
+    // ---------------------------------------------- harvest weapon auto-swap
+    // Harvesting a node / tile that needs a weapon type the player isn't
+    // holding equips one of that type from the inventory; when the harvest
+    // ends (done or aborted, see playerlocalmovement.js forceStop()) the
+    // weapon it replaced is equipped again. Equipping is a swap on the
+    // server, so the old weapon lands in the tool's inventory slot.
+
+    // The best inventory weapon of type `type` ('axe', 'hammer') the player
+    // can equip, or null. Weapons above the player's level are skipped (the
+    // server refuses to equip them); then unbroken beats broken (durability
+    // 0), then highest weapon level (modifier), enchant, durability.
+    proto.findHarvestWeapon = function (type) {
+        const inv = this.inventory;
+        const level = this.player.level;
+        const rank = (item) => [
+            item.itemDurability > 0 ? 1 : 0,
+            ItemTypes.getWeaponLevel(item.itemKind) || 0,
+            item.itemNumber || 0,
+            item.itemDurability || 0
+        ];
+        const better = (a, b) => {
+            const ra = rank(a),
+                rb = rank(b);
+            for (let i = 0; i < ra.length; ++i)
+                if (ra[i] !== rb[i]) return ra[i] > rb[i];
+            return false;
+        };
+        let best = null;
+        for (let i = 0; i < inv.maxNumber; ++i) {
+            const item = inv.rooms[i];
+            if (
+                !item ||
+                !ItemTypes.isWeapon(item.itemKind) ||
+                ItemTypes.getType(item.itemKind) !== type ||
+                (ItemTypes.getWeaponLevel(item.itemKind) || 0) > level
+            )
+                continue;
+            if (!best || better(item, best)) {
+                item.slot = i;
+                best = item;
+            }
+        }
+        return best;
+    };
+
+    // Holding a weapon of type `type`, or carrying one to swap to.
+    proto.canHarvestWith = function (type) {
+        return (
+            this.player.items.hasHarvestWeapon(type) ||
+            !!this.findHarvestWeapon(type)
+        );
+    };
+
+    // Make sure a weapon of type `type` is (being) equipped. False when the
+    // player has none. The equip packet goes out before the harvest one, and
+    // the server handles them in order.
+    proto.ensureHarvestWeapon = function (type) {
+        const p = this.player;
+        if (type === 'any' || p.items.hasHarvestWeapon(type)) return true;
+
+        const item = this.findHarvestWeapon(type);
+        if (!item) return false;
+
+        if (!this.harvestSwap) {
+            const prev = p.items.getWeapon();
+            this.harvestSwap = {
+                prevKind: prev ? prev.itemKind : -1,
+                toolKind: item.itemKind,
+                slot: item.slot
+            };
+        } else {
+            // Already swapped for an earlier harvest that hasn't been undone:
+            // keep the original weapon to go back to.
+            this.harvestSwap.toolKind = item.itemKind;
+            this.harvestSwap.slot = item.slot;
+        }
+        this.equipment.equip(item, item.slot);
+        return true;
+    };
+
+    // The harvest ended: re-equip the weapon ensureHarvestWeapon() replaced.
+    // Nothing when there was no swap, no weapon before it, or the player has
+    // changed weapon since.
+    proto.restoreHarvestWeapon = function () {
+        const s = this.harvestSwap;
+        if (!s) return;
+        this.harvestSwap = null;
+        if (s.prevKind < 0) return;
+
+        const weapon = this.player.items.getWeapon();
+        if (!weapon || weapon.itemKind !== s.toolKind) return;
+
+        let item = this.inventory.rooms[s.slot];
+        if (item && item.itemKind === s.prevKind) item.slot = s.slot;
+        else item = this.inventory.getItemByKind(s.prevKind);
+        if (item) this.equipment.equip(item, item.slot);
     };
 }
