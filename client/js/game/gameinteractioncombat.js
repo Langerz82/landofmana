@@ -30,9 +30,15 @@ export function installGameInteractionCombat(proto) {
 
         switch (res) {
             case 'attack_ok': {
-                const skillId = p.attackSkill ? p.attackSkill.skillId : -1;
+                // An armed hit-based skill executes with this attack (see
+                // SkillActive.execute()/fire() in skillhandler.js).
+                const skill = p.attackSkill;
+                const skillId = skill ? skill.skillId : -1;
                 this.client.sendAttack(p, p.target, skillId);
-                if (skillId !== -1) p.attackSkill = null;
+                if (skill) {
+                    p.attackSkill = null;
+                    if (skill.fire) skill.fire();
+                }
 
                 this.audioManager.playSound(
                     'hit' + Math.floor(Math.random() * 2 + 1)

@@ -1054,8 +1054,13 @@ func make_player_attack(e) -> bool:
 	var res := p.make_attack(e)
 	match res:
 		"attack_ok":
-			client.send_attack(p, p.target, p.attack_skill)
+			# An armed hit-based skill executes with this attack (see
+			# ItemActions.execute_skill / skill_fired).
+			var skill := p.attack_skill
+			client.send_attack(p, p.target, skill)
 			p.attack_skill = -1
+			if skill >= 0:
+				actions.skill_fired(skill)
 			if audio:
 				audio.play_sound("hit%d" % randi_range(1, 2))
 			p.attack_cooldown.duration = 1000

@@ -363,9 +363,14 @@ func execute_skill(index: int) -> bool:
 	var p = world.player
 	match str(s.skillType):
 		"attack":
+			# Hit-based skill. Pressing it works like the attack button
+			# (targets / attacks as normal) with the skill armed; it doesn't
+			# execute until the player actually attacks -- it's sent with the
+			# hit and its cooldown starts then (world.make_player_attack ->
+			# skill_fired).
 			p.attack_skill = index
-			if p.attack_delay == null:
-				world.make_player_interact_next_to()
+			world.make_player_interact_next_to()
+			return false
 		"target":
 			if p.has_target() and p.target is Character:
 				client().send([Types.Messages.CW_SKILL, index, p.target.id])
@@ -379,3 +384,13 @@ func execute_skill(index: int) -> bool:
 	skill_cooldown_until[index] = now() + maxi(int(s.recharge), 2000)
 	cooldowns_changed.emit()
 	return true
+
+
+## SkillActive.fire(): an armed hit-based skill went out with an attack --
+## its cooldown starts now, not when the key was pressed.
+func skill_fired(index: int) -> void:
+	var s := GameData.get_skill(index)
+	if s.is_empty():
+		return
+	skill_cooldown_until[index] = now() + maxi(int(s.recharge), 2000)
+	cooldowns_changed.emit()

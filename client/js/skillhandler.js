@@ -73,9 +73,16 @@ class SkillActive extends Skill {
         }
 
         if (this.data.skillType === 'attack') {
+            // Hit-based skill. Pressing it works like the attack button
+            // (targets / attacks as normal) with the skill armed; it doesn't
+            // execute until the player actually attacks - it's sent with
+            // the hit and its cooldown starts then (makePlayerAttack() ->
+            // fire() in gameinteractioncombat.js). Returning false keeps the
+            // shortcut / skill-window cooldowns from starting on the press;
+            // fire() starts them.
             player.attackSkill = this;
-            if (!player.attackInterval) game.makePlayerInteractNextTo();
-            if (this.execute_callback) this.execute_callback(self);
+            game.makePlayerInteractNextTo();
+            return false;
         } else if (this.data.skillType === 'target') {
             if (player.hasTarget() && player.target instanceof Character) {
                 if (this.execute_callback) this.execute_callback(self);
@@ -94,6 +101,29 @@ class SkillActive extends Skill {
         return true;
     }
 }
+
+// A hit-based ("attack") skill armed by execute() went out with an attack:
+// this is where it actually executes - cooldown and UI cooldowns start now,
+// not when the key was pressed.
+SkillActive.prototype.fire = function () {
+    this.cooldownTime = Date.now();
+    if (this.execute_callback) this.execute_callback(this);
+    game.player.skillHandler.pushActiveSkill(this);
+
+    const id = this.skillId;
+    const shortcuts = (game.shortcuts && game.shortcuts.shortcuts) || [];
+    const onBar = shortcuts.some(
+        (sc) => sc && sc.type === 2 && sc.shortcutId === id
+    );
+    // A shortcut slot's cooldownStart() also starts the skill window's
+    // cooldown; only start the window's directly when no slot holds it.
+    if (onBar) game.shortcuts.cooldownStart(2, id);
+    else {
+        const page = game.skillDialog && game.skillDialog.page;
+        if (page && page.skills && page.skills[id] && page.skills[id].skill)
+            page.cooldownStart(id);
+    }
+};
 
 const SkillFactory = {
     make: function (index) {
