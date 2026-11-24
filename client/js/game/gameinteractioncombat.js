@@ -32,13 +32,16 @@ export function installGameInteractionCombat(proto) {
             case 'attack_ok': {
                 // An armed hit-based skill executes with this attack (see
                 // SkillActive.execute()/fire() in skillhandler.js).
+                // The skill packet (CW_SKILL) goes to the server before the
+                // attack packet, so the skill is applied first and the attack
+                // itself carries no skill (-1).
                 const skill = p.attackSkill;
-                const skillId = skill ? skill.skillId : -1;
-                this.client.sendAttack(p, p.target, skillId);
                 if (skill) {
                     p.attackSkill = null;
+                    this.client.sendSkill(skill.skillId, p.target.id);
                     if (skill.fire) skill.fire();
                 }
+                this.client.sendAttack(p, p.target, -1);
 
                 this.audioManager.playSound(
                     'hit' + Math.floor(Math.random() * 2 + 1)

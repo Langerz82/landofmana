@@ -1056,11 +1056,15 @@ func make_player_attack(e) -> bool:
 		"attack_ok":
 			# An armed hit-based skill executes with this attack (see
 			# ItemActions.execute_skill / skill_fired).
+			# The skill packet (CW_SKILL) goes to the server before the attack
+			# packet, so the skill is applied first and the attack itself
+			# carries no skill (-1).
 			var skill := p.attack_skill
-			client.send_attack(p, p.target, skill)
 			p.attack_skill = -1
 			if skill >= 0:
+				client.send([Types.Messages.CW_SKILL, skill, p.target.id])
 				actions.skill_fired(skill)
+			client.send_attack(p, p.target, -1)
 			if audio:
 				audio.play_sound("hit%d" % randi_range(1, 2))
 			p.attack_cooldown.duration = 1000
