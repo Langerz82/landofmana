@@ -1213,8 +1213,31 @@ func _try_interact_existing_target() -> bool:
 	if not is_visible_entity(p.target):
 		p.clear_target()
 		return false
+	# An NPC target the player isn't next to and facing: don't walk to it --
+	# target the next closest entity instead.
+	if p.target is Npc and not (p.is_next_too_entity(p.target) and p.is_facing_entity(p.target)):
+		return _retarget_from_npc()
 	if p.can_reach_target() and not p.is_moving():
 		p.look_at_entity(p.target)
+	return _process_target()
+
+
+## Swap an NPC target for the closest non-NPC entity (same order as the target
+## key, player_target_closest_entity, but NPCs are always left out --
+## otherwise, with several NPCs on screen, it could just pick another NPC
+## that's out of reach too). The new target is interacted with only when it's
+## already in reach; one further away is just targeted. No other entity:
+## target cleared and false returned, so make_player_interact_next_to carries
+## on with its other fallbacks.
+func _retarget_from_npc() -> bool:
+	var p := player
+	p.clear_target()
+	p.target_index = 0
+	if not player_target_closest_entity(0, true):
+		return false
+	if not p.can_reach_target():
+		return true
+	p.look_at_entity(p.target)
 	return _process_target()
 
 
@@ -1228,10 +1251,11 @@ func _try_interact_closest_entity() -> bool:
 	return _process_target()
 
 
-func player_target_closest_entity(inc: int) -> bool:
+## exclude_npcs: leave NPCs out on every map (_retarget_from_npc).
+func player_target_closest_entity(inc: int, exclude_npcs := false) -> bool:
 	var p := player
 	var exclude := [Types.EntityType.NODE, Types.EntityType.PLAYER]
-	if current_map and current_map.map_index != 0:
+	if exclude_npcs or (current_map and current_map.map_index != 0):
 		exclude += [Types.EntityType.NPCMOVE, Types.EntityType.NPCSTATIC]
 	var list: Array = entities_in_screen(p).filter(func(e): return not (e.type in exclude or e.is_dying or e.is_dead or e is ItemEntity))
 	if list.is_empty():

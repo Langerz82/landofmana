@@ -248,6 +248,14 @@ export function installGameInteractionTarget(proto) {
             return false;
         }
 
+        // An NPC target the player isn't next to and facing: don't walk to
+        // it - target the next closest entity instead.
+        if (
+            (target instanceof NpcStatic || target instanceof NpcMove) &&
+            !(p.isNextTooEntity(target) && p.isFacingEntity(target))
+        )
+            return this.retargetFromNpc();
+
         // FIX: this used to check p.isNextTooEntity(target), which is a hardcoded
         // 1-tile melee check (isWithinDist(G_TILESIZE)) - it ignores attackRange
         // entirely. For a ranged weapon (attackRange > 1) a target sitting well
@@ -263,6 +271,30 @@ export function installGameInteractionTarget(proto) {
         // as ranged targets within attackRange, so a valid target of any range
         // is re-engaged here before the closest-entity fallback ever runs.
         if (p.canReachTarget() && !p.isMoving()) p.lookAtEntity(target);
+        return this.processTarget();
+    };
+
+    // Swap an NPC target for the closest non-NPC entity (same order as the
+    // target key, playerTargetClosestEntity(), but NPCs are always left
+    // out - otherwise, with several NPCs on screen, it could just pick
+    // another NPC that's out of reach too). The new target is interacted
+    // with only when it's already in reach; one further away is just
+    // targeted. No other entity: target cleared and false returned, so
+    // makePlayerInteractNextTo() carries on with its other fallbacks.
+    proto.retargetFromNpc = function () {
+        const p = this.player;
+        p.clearTarget();
+        p.targetIndex = 0;
+        const entity = this.entityTargetClosestEntity(p, 0, 0, [
+            Types.EntityTypes.NODE,
+            Types.EntityTypes.PLAYER,
+            Types.EntityTypes.NPCMOVE,
+            Types.EntityTypes.NPCSTATIC
+        ]);
+        if (!entity) return false;
+        p.setTarget(entity);
+        if (!p.canReachTarget()) return true;
+        p.lookAtEntity(entity);
         return this.processTarget();
     };
 
