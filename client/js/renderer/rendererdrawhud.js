@@ -106,6 +106,8 @@ export function installRendererDrawHud(proto) {
                 quest.push([n, sx, sy, dist]);
                 continue;
             }
+            // Nothing more for us there (no more quests): no arrow.
+            if (game.npcNoQuests && game.npcNoQuests[n.npcQuestId]) continue;
             if (dist <= nearPx) plain.push([dist, n, sx, sy]);
         }
         plain.sort((a, b) => a[0] - b[0]);

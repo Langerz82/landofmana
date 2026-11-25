@@ -186,6 +186,9 @@ export default class Game {
         // Cleared when the player talks to that NPC (makeNpcTalk). Drawn as
         // guide arrows by the renderer (drawGuideArrows).
         this.questReturn = {};
+        // NPCs (by npcQuestId) on this map with no more quests for the
+        // player (server WC_NOTIFY "NPC_NO_QUESTS"): no plain guide arrows.
+        this.npcNoQuests = {};
         this.pathingGrid = [];
         this.tileGrid = [];
         this.itemGrid = [];

@@ -114,6 +114,8 @@ func _draw_guides(s: float) -> void:
 		if is_quest:
 			quest.append([n, sp, dist])
 			continue
+		if world.npc_no_quests.has(n.npc_quest_id):
+			continue   # nothing more for us there (no more quests): no arrow
 		if dist <= near_px:
 			plain.append([dist, n, sp])
 	plain.sort_custom(func(a, b): return a[0] < b[0])

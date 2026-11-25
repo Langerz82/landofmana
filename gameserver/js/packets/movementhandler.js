@@ -498,6 +498,8 @@ class MovementHandler {
             setMoveAnchor(p, p.x, p.y);
             p.map.entities.processWho(p);
             p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
+            // Which of this map's NPCs have no more quests for us (guide arrows).
+            p.quests.sendNpcQuestState(true);
 
             this.ph.send([
                 Types.Messages.WC_TELEPORT_MAP,

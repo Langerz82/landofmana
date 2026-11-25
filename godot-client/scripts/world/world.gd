@@ -64,6 +64,9 @@ var npcs: Dictionary = {}       # id -> Npc
 ## quests completed while the player was away from them. Cleared when the
 ## player talks to that NPC. Drawn as guide arrows by the Overlay.
 var quest_return: Dictionary = {}
+## NPCs (by npc_quest_id) on this map with no more quests for the player
+## (server WC_NOTIFY "NPC_NO_QUESTS"): no plain guide arrows to them.
+var npc_no_quests: Dictionary = {}
 var player: Player
 var current_map: MapData = null
 var prev_map: MapData = null
@@ -2062,6 +2065,12 @@ func _on_notify(pkt: Array) -> void:
 		admin_mode = pkt.size() > 2 and Types.to_int(pkt[2]) == 1
 		if hud:
 			hud.set_keep_chat(admin_mode)
+		return
+	if pkt.size() > 0 and str(pkt[0]) == "NPC_NO_QUESTS":
+		# gameserver PlayerQuests.sendNpcQuestState(): [group, "", npcQuestId...]
+		npc_no_quests.clear()
+		for i in range(2, pkt.size()):
+			npc_no_quests[Types.to_int(pkt[i])] = true
 		return
 	var d := pkt.duplicate()
 	var group := str(d.pop_front())

@@ -169,6 +169,33 @@ class EntityQuests {
         return false;
     }
 
+    // Whether this NPC still has anything quest-wise for the player: a quest
+    // of its in progress, a reward still to hand over, or a quest to offer
+    // (authored, or one of its MAX_DYNAMIC_QUESTS_PER_NPC made-up ones).
+    // Mirrors what talking to it would do (NpcStatic/NpcMove.talk()). The
+    // client stops pointing guide arrows at NPCs without
+    // (PlayerQuests.sendNpcQuestState()).
+    hasQuestsFor(player) {
+        for (const q of player.quests.quests) {
+            if (this.ownsQuest(player, q)) return true;
+        }
+        if (Object.keys(this.quests).length === 0) {
+            return (
+                this.nextDynamicQuestNumber(player) <=
+                MAX_DYNAMIC_QUESTS_PER_NPC
+            );
+        }
+        for (const id in this.quests) {
+            const cq = player.quests.completeQuests[id];
+            const quest = this.quests[id];
+            if (cq && quest && !cq.hasOwnProperty('reward')) {
+                if (quest.gold > 0 || (quest.reward || []).length > 0)
+                    return true;
+            }
+        }
+        return this.getNextQuestId(player) !== null;
+    }
+
     giveReward(player, quest) {
         const pquest = player.quests.completeQuests[quest.id];
         if (!pquest) return false;
@@ -182,6 +209,7 @@ class EntityQuests {
             // quest or its no-more-quests line instead of saying nothing.
             if (!(quest.gold > 0) && rewards.length === 0) {
                 pquest.reward = 1;
+                player.quests.sendNpcQuestState();
                 return false;
             }
             const count = player.items.inventory.hasRoomCount();
@@ -245,6 +273,7 @@ class EntityQuests {
                 player.sendPlayer(msg);
             }
             pquest.reward = 1;
+            player.quests.sendNpcQuestState();
             return true;
         }
         return false;
@@ -338,6 +367,7 @@ class EntityQuests {
         const path =
             QuestText.getLineCount(own) > 0 ? own : ['NO_MORE_QUESTS_DEFAULT'];
         player.sendPlayer(new Messages.Speech(entity, path, []));
+        player.quests.sendNpcQuestState();
     }
 
     dynamicQuests(player) {

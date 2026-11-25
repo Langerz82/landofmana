@@ -69,6 +69,13 @@ export function installClientCallbacksSocial(proto) {
             if (game.chathandler) game.chathandler.setAdminLog(game.adminMode);
             return;
         }
+        // NPCs on this map with no more quests for us (gameserver
+        // PlayerQuests.sendNpcQuestState()): no guide arrows to them.
+        if (data[0] === 'NPC_NO_QUESTS') {
+            game.npcNoQuests = {};
+            for (const id of data.slice(2)) game.npcNoQuests[Number(id)] = true;
+            return;
+        }
         game.showNotification(data);
     };
 

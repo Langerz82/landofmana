@@ -458,6 +458,7 @@ class Player extends Character {
             self.world.enter_callback(self);
             self.connection.sendUTF8(sendMessage.join(','));
             if (self.isAdmin) self.sendAdminMode();
+            self.quests.sendNpcQuestState(true);
         }
     }
 

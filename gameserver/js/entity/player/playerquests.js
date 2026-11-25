@@ -178,6 +178,33 @@ class PlayerQuests {
         const p = this.player;
         //var entityId = this.player.map.entities.getNpcByQuestId(quest.npcQuestId);
         p.sendPlayer(new Messages.Quest(quest));
+        this.sendNpcQuestState();
+    }
+
+    // Tells the client which NPCs on the player's map have nothing more
+    // quest-wise for this player (WC_NOTIFY group "NPC_NO_QUESTS", followed
+    // by their npcQuestIds -- EntityQuests.hasQuestsFor()), so it stops
+    // pointing guide arrows at them. Sent at login, on entering a map
+    // (`force`) and whenever the player's quests change -- only when the
+    // list actually changed. Straight down the connection, like
+    // Player.sendAdminMode(): at login the player isn't on a map's
+    // broadcaster yet.
+    sendNpcQuestState(force) {
+        const p = this.player;
+        if (!p.map || !p.map.entities || !p.packetHandler) return;
+        const ids = [];
+        const check = (npc) => {
+            if (npc && npc.entityQuests && !npc.entityQuests.hasQuestsFor(p))
+                ids.push(npc.npcQuestId);
+        };
+        p.map.entities.npcs.forEach(check);
+        p.map.entities.npcplayers.forEach(check);
+        const key = p.map.id + ':' + ids.join(',');
+        if (!force && key === this._npcQuestStateKey) return;
+        this._npcQuestStateKey = key;
+        p.packetHandler.send(
+            new Messages.Notify('NPC_NO_QUESTS', '', ids).serialize()
+        );
     }
 
     progressQuest(quest) {
@@ -195,6 +222,7 @@ class PlayerQuests {
         this.sendQuest(quest);
         this.completeQuests[quest.id] = { npcid: quest.npcQuestId };
         this.removeQuest(quest);
+        this.sendNpcQuestState();
     }
 
     removeQuest(quest) {
