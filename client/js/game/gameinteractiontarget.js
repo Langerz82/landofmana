@@ -418,6 +418,9 @@ export function installGameInteractionTarget(proto) {
             return;
         }
 
+        // Back at the quest's NPC: no more guide arrow to it.
+        delete game.questReturn[npc.npcQuestId];
+
         if (npc.type === Types.EntityTypes.NPCMOVE) {
             this.client.sendTalkToNPC(npc.type, npc.id);
             return;

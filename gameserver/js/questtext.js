@@ -147,8 +147,19 @@ function getQuestSummaryPath(quest) {
 // quest list; the client keeps it from then on. Plus the per-line delay, only
 // when it differs from Types.DIALOGUE_DELAY_DEFAULT. The client looks the
 // text up and fills in the variables from the quest's fields.
+// Quest NPCs by npcQuestId (registered by NpcStatic/NpcMove when they
+// spawn), so a quest's text can name the NPC it's handed in to.
+const questNpcs = new Map();
+export function registerQuestNpc(npc) {
+    if (npc && npc.npcQuestId) questNpcs.set(Number(npc.npcQuestId), npc);
+}
+
 export function getQuestText(quest, withSummary) {
     const text = { desc: getQuestDescPath(quest) };
+    // The quest's NPC's name: the client adds "(return to <npc>)" to the
+    // quest's summary and offers it as %npc% in quest text.
+    const npc = questNpcs.get(Number(quest.npcQuestId));
+    if (npc && npc.name) text.npc = String(npc.name);
     if (withSummary) text.summary = getQuestSummaryPath(quest);
     if (G_DIALOGUE_DELAY !== Types.DIALOGUE_DELAY_DEFAULT)
         text.delay = G_DIALOGUE_DELAY;
@@ -159,5 +170,6 @@ export default {
     getLineCount,
     getQuestOfferPath,
     getQuestDescPath,
-    getQuestText
+    getQuestText,
+    registerQuestNpc
 };

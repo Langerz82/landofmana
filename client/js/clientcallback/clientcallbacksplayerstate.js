@@ -171,6 +171,7 @@ export function installClientCallbacksPlayerState(proto) {
         }
 
         p.quests = {};
+        game.questReturn = {};
         const questCount = parseInt(data.shift());
         if (questCount > 0) {
             // FIX: `questArray.parseInt();` called the old

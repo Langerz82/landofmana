@@ -64,8 +64,29 @@ export function installClientCallbacksQuest(proto) {
         const npc = game.getNpcByQuestKind(quest.npcQuestId);
         if (npc) game.bubbleManager.destroyBubble(npc.id);
 
-        if (npc && game.player.canInteract(npc)) {
+        // Completed away from the quest's NPC: guide the player back to it.
+        // (A hand-in completes while standing next to the NPC, so no arrow then.)
+        if (
+            quest.status === QuestStatus.COMPLETE &&
+            !(npc && game.player.isNextTooEntity(npc))
+        )
+            game.questReturn[quest.npcQuestId] = true;
+
+        if (
+            npc &&
+            game.player.canInteract(npc) &&
+            Array.isArray(quest.desc) &&
+            quest.desc.length > 0
+        ) {
             this.questSpeech(quest);
+        } else {
+            // Not talking to the quest's NPC (no dialogue): log the change
+            // in the chat instead, like the Godot client.
+            const states = ['Quest started', 'Quest updated', 'Quest complete'];
+            const state = states[Math.min(Math.max(Number(quest.status) || 0, 0), 2)];
+            game.chathandler.addNotification(
+                state + ': ' + quest.summary + ' (' + quest.progressText() + ')'
+            );
         }
 
         if (quest.status === 0) {

@@ -60,6 +60,10 @@ var audio = null                # AudioManager
 
 var entities: Dictionary = {}   # id -> Entity
 var npcs: Dictionary = {}       # id -> Npc
+## Quest NPCs (by npc_quest_id) the player has to go back to: one of their
+## quests completed while the player was away from them. Cleared when the
+## player talks to that NPC. Drawn as guide arrows by the Overlay.
+var quest_return: Dictionary = {}
 var player: Player
 var current_map: MapData = null
 var prev_map: MapData = null
@@ -1397,6 +1401,7 @@ func make_npc_talk(npc) -> void:
 	if not p.is_next_too_entity(npc):
 		p.follow(npc)
 		return
+	quest_return.erase(npc.npc_quest_id)   # back at the quest's NPC: no more guide arrow
 	# The server checks the distance with its own (slightly delayed) copy of
 	# our position, so give it one round trip to catch up after walking.
 	var talk := func():
@@ -1647,6 +1652,7 @@ func _on_player(pkt: Array) -> void:
 	# text as URI-encoded JSON, decoded in Quest.set_text())
 	count = Types.to_int(d.pop_front())
 	data.quests.clear()
+	quest_return.clear()
 	for i in range(count):
 		var q: Array = []
 		for j in range(14):
@@ -2145,6 +2151,10 @@ func _on_quest(d: Array) -> void:
 	for n in npcs.values():
 		if n.npc_quest_id == q.npc_quest_id:
 			npc = n
+	# Completed away from the quest's NPC: guide the player back to it. (A
+	# hand-in completes while standing next to the NPC, so no arrow then.)
+	if q.status == Quest.Status.COMPLETE and (npc == null or not player.is_next_too_entity(npc)):
+		quest_return[q.npc_quest_id] = true
 	if npc != null:
 		bubbles.erase(npc.id)
 	if npc != null and player.can_interact(npc) and not q.desc.is_empty():
@@ -2672,6 +2682,19 @@ static func default_zoom() -> float:
 	if UiStyle.is_mobile():
 		return MOBILE_ZOOM
 	return DEFAULT_ZOOM
+
+
+## npc_quest_ids of the NPCs the player should return to (guide arrows):
+## a quest of theirs completed away from them (quest_return), or a
+## collect-items quest whose items are all gathered and only need handing in.
+func quest_return_ids() -> Dictionary:
+	var ids := quest_return.duplicate()
+	if data:
+		for q in data.quests.values():
+			if q.type == Quest.QuestType.GETITEMKIND and q.status != Quest.Status.COMPLETE \
+					and q.object2 != null and int(q.object2.count) > 0 and q.count >= int(q.object2.count):
+				ids[q.npc_quest_id] = true
+	return ids
 
 
 ## How big the world is drawn compared with the Normal zoom (1 = Normal,

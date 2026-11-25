@@ -6117,6 +6117,7 @@
     "QUESTS_NODE": [
       ["Use %count% %name%."]
     ],
+    "QUEST_RETURN_TO": "(return to %npc%)",
     "QUEST_SUMMARY": {
       "1030000001201": "Stop %count% sock-stealing %name%s",
       "1030000001301": "Recover %count% handbags swallowed by %name2%s",

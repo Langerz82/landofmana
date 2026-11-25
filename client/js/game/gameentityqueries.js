@@ -65,6 +65,26 @@ export function installGameEntityQueries(proto) {
         //}
     };
 
+    // npcQuestIds of the NPCs the player should return to (guide arrows): a
+    // quest of theirs completed away from them (this.questReturn), or a
+    // collect-items quest whose items are all gathered and only need handing in.
+    proto.getQuestReturnIds = function () {
+        const ids = Object.assign({}, this.questReturn);
+        const quests = (this.player && this.player.quests) || {};
+        for (const q of Object.values(quests)) {
+            if (
+                q &&
+                q.type === Types.QuestType.GETITEMKIND &&
+                q.status !== Types.QuestStatus.COMPLETE &&
+                q.object2 &&
+                q.object2.count > 0 &&
+                q.count >= q.object2.count
+            )
+                ids[q.npcQuestId] = true;
+        }
+        return ids;
+    };
+
     proto.getNpcByQuestKind = function (npcQuestId) {
         for (let id in this.npc) {
             const entity = this.npc[id];

@@ -26,6 +26,18 @@ var KOMIKA: FontFile = UiStyle.world_text_font()   # own copy, see UiStyle
 const TS := Constants.G_TILESIZE
 const NAME_SIZE := 10       # entity name size at the Normal zoom (x Font size setting)
 const NAME_MIN_SIZE := 8    # never smaller than this when zoomed far out
+# Guide arrows at the screen edge pointing at off-screen NPCs.
+const GUIDE_NEAR_TILES := INF  # plain NPC arrows only for NPCs this close (tiles; INF = any distance on the map)
+const GUIDE_MAX_NEAR := 4     # at most this many plain NPC arrows at once (nearest first)
+const GUIDE_MARGIN := 40.0    # arrow distance from the screen edge (x UI scale)
+# Arrow size by the NPC's distance from the player: full size (x GUIDE_SCALE_CLOSE)
+# at GUIDE_CLOSE_TILES or closer, shrinking to x GUIDE_SCALE_FAR at GUIDE_FAR_TILES+.
+const GUIDE_CLOSE_TILES := 12.0
+const GUIDE_FAR_TILES := 80.0
+const GUIDE_SCALE_CLOSE := 1.3
+const GUIDE_SCALE_FAR := 0.5
+const GUIDE_COLOR := Color(1, 1, 1, 0.85)
+const GUIDE_QUEST_COLOR := Color("#ffd23f")   # quest done: go back to this NPC
 
 var world = null
 
@@ -71,9 +83,102 @@ func _draw() -> void:
 		col.a = clampf(info.opacity, 0, 1)
 		var fs := UiStyle.fs(info.size * 3 * UiStyle.ui_scale)
 		_text_centered(str(info.text), ip, fs, col, Color(0, 0, 0, col.a), roundi(4 * UiStyle.ui_scale))
+	_draw_guides(scale_f)
 	for b in world.bubbles.values():
 		if is_instance_valid(b.entity):
 			_draw_bubble(b, scale_f)
+
+
+## Guide arrows: at the screen edge, pointing at nearby off-screen NPCs
+## (white, the nearest GUIDE_MAX_NEAR within GUIDE_NEAR_TILES) and at any NPC
+## the player has to return to for a completed quest (gold, pulsing, at any
+## distance on the map). A quest NPC that's on screen gets a bobbing gold
+## marker over its name instead.
+func _draw_guides(s: float) -> void:
+	var p = world.player
+	var screen := get_viewport_rect()
+	var returns: Dictionary = world.quest_return_ids()
+	var near_px := float(GUIDE_NEAR_TILES * TS)
+	var plain: Array = []
+	var quest: Array = []
+	for n in world.npcs.values():
+		if not is_instance_valid(n) or n.hidden_by_area or n.is_dead:
+			continue
+		var is_quest: bool = returns.has(n.npc_quest_id)
+		var sp := _to_screen(Vector2(n.x, n.y))
+		if screen.has_point(sp):
+			if is_quest:
+				_draw_quest_marker(n, sp, s)
+			continue
+		var dist := Vector2(n.x - p.x, n.y - p.y).length()
+		if is_quest:
+			quest.append([n, sp, dist])
+			continue
+		if dist <= near_px:
+			plain.append([dist, n, sp])
+	plain.sort_custom(func(a, b): return a[0] < b[0])
+	for i in range(mini(plain.size(), GUIDE_MAX_NEAR)):
+		_draw_edge_arrow(plain[i][2], str(plain[i][1].ename), GUIDE_COLOR, false, plain[i][0])
+	for q in quest:
+		_draw_edge_arrow(q[1], str(q[0].ename), GUIDE_QUEST_COLOR, true, q[2])
+
+
+## Arrow size multiplier for an NPC `dist` world pixels from the player:
+## bigger the closer it is.
+static func guide_scale(dist: float) -> float:
+	var t := clampf((dist / TS - GUIDE_CLOSE_TILES) / (GUIDE_FAR_TILES - GUIDE_CLOSE_TILES), 0.0, 1.0)
+	return lerpf(GUIDE_SCALE_CLOSE, GUIDE_SCALE_FAR, t)
+
+
+## Arrow on the screen edge, on the line from the screen centre to `target`
+## (an off-screen point), pointing at it, with `label` just inside it. The
+## arrow is bigger the closer the NPC is (`dist`, world pixels; guide_scale()).
+func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool, dist: float) -> void:
+	var u := UiStyle.ui_scale
+	var screen := get_viewport_rect()
+	var c := screen.get_center()
+	var dir := target - c
+	if dir.length_squared() < 1.0:
+		return
+	var m := GUIDE_MARGIN * u
+	var hw := maxf(screen.size.x / 2 - m, 1.0)
+	var hh := maxf(screen.size.y / 2 - m, 1.0)
+	var pos := c + dir * minf(hw / maxf(absf(dir.x), 0.001), hh / maxf(absf(dir.y), 0.001))
+	var n := dir.normalized()
+	var side := n.orthogonal()
+	var size := (15.0 if pulse else 11.0) * u * guide_scale(dist)
+	if pulse:
+		size *= 1.0 + 0.15 * sin(Time.get_ticks_msec() / 150.0)
+	var tip := pos + n * size
+	var pts := PackedVector2Array([tip, pos - n * size * 0.7 + side * size * 0.85,
+		pos - n * size * 0.3, pos - n * size * 0.7 - side * size * 0.85])
+	draw_colored_polygon(pts, color)
+	pts.append(tip)
+	draw_polyline(pts, Color(0, 0, 0, color.a), maxf(1.5, 2.0 * u), true)
+	if label == "":
+		return
+	# Name just inside the arrow, kept fully on screen.
+	var fs := maxi(NAME_MIN_SIZE, roundi(UiStyle.fs(9) * u))
+	var w := KOMIKA.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	var lp := pos - n * (size + fs)
+	lp.x = clampf(lp.x, w / 2 + 4 * u, screen.size.x - w / 2 - 4 * u)
+	lp.y = clampf(lp.y, fs + 4 * u, screen.size.y - fs * 0.5 - 4 * u)
+	_text_centered(label, lp, fs, color, Color(0, 0, 0, color.a), roundi(3 * u))
+
+
+## Bobbing gold arrow over the name of an on-screen NPC with a quest to hand in.
+func _draw_quest_marker(e, sp: Vector2, s: float) -> void:
+	var u := UiStyle.ui_scale
+	var y := sp.y - TS * s - name_size() * 1.2
+	if e.type == Types.EntityType.NPCMOVE:
+		y -= (TS >> 1) * s
+	y += sin(Time.get_ticks_msec() / 180.0) * 3.0 * u
+	var w := 7.0 * u
+	var h := 9.0 * u
+	var pts := PackedVector2Array([Vector2(sp.x, y), Vector2(sp.x - w, y - h), Vector2(sp.x + w, y - h)])
+	draw_colored_polygon(pts, GUIDE_QUEST_COLOR)
+	pts.append(pts[0])
+	draw_polyline(pts, Color.BLACK, maxf(1.5, 2.0 * u), true)
 
 
 func _draw_name(e, sp: Vector2, s: float) -> void:

@@ -503,6 +503,8 @@ export default class Renderer {
 
         this.drawBubbles();
 
+        this.drawGuideArrows();
+
         this.drawCombatInfo();
         this.drawDebugInfo();
         this.drawCursor();

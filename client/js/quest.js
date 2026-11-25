@@ -163,6 +163,7 @@ export default class Quest {
     constructor(arr) {
         this.desc = [];
         this.summary = '';
+        this.npcName = ''; // the quest's NPC, from the server's quest text
         this.delay = Types.DIALOGUE_DELAY_DEFAULT;
         this.update(arr);
     }
@@ -192,6 +193,15 @@ export default class Quest {
         if (text) this.setText(text);
     }
 
+    // "count / needed" for the quest log and chat (same as the Godot
+    // client's Quest.progress_text()).
+    progressText() {
+        if (this.type === Types.QuestType.GETITEMKIND && this.object2)
+            return this.count + ' / ' + this.object2.count;
+        if (this.object) return this.count + ' / ' + this.object.count;
+        return String(this.count);
+    }
+
     // This quest's fill-in variables (%name%, %count%, ...).
     getVars() {
         return getQuestVars(this.type, this.object, this.object2, this.count);
@@ -207,11 +217,24 @@ export default class Quest {
         }
         if (!text || typeof text !== 'object') return;
 
+        if (text.npc) this.npcName = String(text.npc);
         const vars = this.getVars();
+        if (this.npcName) vars.npc = this.npcName;
         this.desc = langLines(text.desc, vars);
         if ('summary' in text) this.summaryPath = text.summary;
         // Re-filled on every update since %count2% (progress) can change.
         this.summary = langText(this.summaryPath, vars);
+        // Every quest is handed in at (or rewarded by) its NPC: say which one
+        // (quest log, quest alerts).
+        if (this.summary && this.npcName) {
+            const ret = getLangPath(['QUEST_RETURN_TO']);
+            this.summary +=
+                ' ' +
+                fillText(
+                    typeof ret === 'string' ? ret : '(return to %npc%)',
+                    vars
+                );
+        }
         // Only sent when it differs from the default.
         this.delay = Number(text.delay) || Types.DIALOGUE_DELAY_DEFAULT;
     }

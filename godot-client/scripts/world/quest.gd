@@ -34,6 +34,7 @@ var object2 = null
 var desc: Array = []  # [[speaker(0 npc / 1 player), text], ...]
 var summary := ""
 var summary_path = null  # lang path; sent only when the quest starts / at login
+var npc_name := ""      # the quest's NPC, from the server's quest text
 var delay := Types.DIALOGUE_DELAY_DEFAULT  # ms per desc line (server sends it only if not default)
 
 ## The gameserver decides which quest text applies (gameserver/js/
@@ -78,12 +79,21 @@ func set_text(text) -> void:
 		text = JSON.parse_string(String(text).uri_decode())
 	if not (text is Dictionary):
 		return
+	if text.get("npc") != null and str(text.get("npc")) != "":
+		npc_name = str(text.get("npc"))
 	var vars := get_quest_vars(type, object, object2, count)
+	if npc_name != "":
+		vars["npc"] = npc_name
 	desc = lang_lines(text.get("desc"), vars)
 	if text.has("summary"):
 		summary_path = text.get("summary")
 	# Re-filled on every update since %count2% (progress) can change.
 	summary = lang_text(summary_path, vars)
+	# Every quest is handed in at (or rewarded by) its NPC: say which one
+	# (quest log, quest alerts).
+	if summary != "" and npc_name != "":
+		var ret = get_lang_path(["QUEST_RETURN_TO"])
+		summary += " " + fill_text(str(ret) if ret is String else "(return to %npc%)", vars)
 	var dl := Types.to_int(text.get("delay", 0))
 	delay = dl if dl > 0 else Types.DIALOGUE_DELAY_DEFAULT
 

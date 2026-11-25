@@ -21,6 +21,7 @@ import EntityQuests from '../entityquests.js';
 import Utils from '../utils.js';
 import { Types } from '../common.js';
 import QuestData from '../data/questdata.js';
+import { registerQuestNpc } from '../questtext.js';
 import { G_NPC_QUEST_ID_MAP_OFFSET } from '../constants.js';
 import NPCnames from '../../data/npc_names.json' with { type: 'json' };
 
@@ -49,6 +50,7 @@ class NpcMove extends Character {
         // ascending, and reproducible on every server start regardless of
         // which map finishes its async load first.
         this.npcQuestId = this.questMapIndex * G_NPC_QUEST_ID_MAP_OFFSET + this.id;
+        registerQuestNpc(this);
         // The quests this NPC offers: every quest whose id names it -- its
         // map index and entity id (questid.js, data/questdata.js).
         this.setQuests(QuestData.questsForNpc(this.questMapIndex, this.id));

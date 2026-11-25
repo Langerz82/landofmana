@@ -181,6 +181,11 @@ export default class Game {
         // binding.
         this.entities = new globalThis.Map();
         this.npc = {};
+        // Quest NPCs (by npcQuestId) the player has to go back to: one of
+        // their quests completed while the player was away from them.
+        // Cleared when the player talks to that NPC (makeNpcTalk). Drawn as
+        // guide arrows by the renderer (drawGuideArrows).
+        this.questReturn = {};
         this.pathingGrid = [];
         this.tileGrid = [];
         this.itemGrid = [];
