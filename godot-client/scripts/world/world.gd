@@ -28,8 +28,8 @@ const BASE_SCALE := 3.0
 ## Settings -> Zoom value called "Normal" (the default). Entity names are
 ## drawn at their normal size at this zoom and in proportion at the others.
 const DEFAULT_ZOOM := 0.8          # "Normal" (also the reference size for names over the world)
-const MOBILE_ZOOM := 0.5           # zoom on phones until the player picks one
-const TABLET_ZOOM := 0.5           # zoom on tablets (incl. iPad Safari) until the player picks one
+const MOBILE_ZOOM := 0.6           # zoom on phones until the player picks one
+const TABLET_ZOOM := 0.6           # zoom on tablets (incl. iPad Safari) until the player picks one
 const ZOOM_MIN := 0.3              # Settings -> Zoom field range (closest)
 const ZOOM_MAX := 1.2              # (furthest)
 const ZOOM_STEP := 0.1             # Settings -> Zoom field increment
