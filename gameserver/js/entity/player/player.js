@@ -459,6 +459,7 @@ class Player extends Character {
             self.connection.sendUTF8(sendMessage.join(','));
             if (self.isAdmin) self.sendAdminMode();
             self.quests.sendNpcQuestState(true);
+            self.quests.sendPendingRewards();
         }
     }
 

@@ -61,8 +61,9 @@ var audio = null                # AudioManager
 var entities: Dictionary = {}   # id -> Entity
 var npcs: Dictionary = {}       # id -> Npc
 ## Quest NPCs (by npc_quest_id) the player has to go back to: one of their
-## quests completed while the player was away from them. Cleared when the
-## player talks to that NPC. Drawn as guide arrows by the Overlay.
+## quests with a reward completed and the reward not collected yet. Cleared
+## when the NPC hands it over (QUESTS_REWARD speech, _on_speech()). Drawn as
+## guide arrows by the Overlay.
 var quest_return: Dictionary = {}
 ## NPCs (by npc_quest_id) on this map with no more quests for the player
 ## (server WC_NOTIFY "NPC_NO_QUESTS"): no plain guide arrows to them.
@@ -1404,7 +1405,6 @@ func make_npc_talk(npc) -> void:
 	if not p.is_next_too_entity(npc):
 		p.follow(npc)
 		return
-	quest_return.erase(npc.npc_quest_id)   # back at the quest's NPC: no more guide arrow
 	# The server checks the distance with its own (slightly delayed) copy of
 	# our position, so give it one round trip to catch up after walking.
 	var talk := func():
@@ -2072,6 +2072,12 @@ func _on_notify(pkt: Array) -> void:
 		for i in range(2, pkt.size()):
 			npc_no_quests[Types.to_int(pkt[i])] = true
 		return
+	if pkt.size() > 0 and str(pkt[0]) == "QUEST_REWARDS_PENDING":
+		# At login: NPCs holding a quest reward we haven't collected yet
+		# (gameserver PlayerQuests.sendPendingRewards()) -- go back to them.
+		for i in range(2, pkt.size()):
+			quest_return[Types.to_int(pkt[i])] = true
+		return
 	var d := pkt.duplicate()
 	var group := str(d.pop_front())
 	var text := str(d.pop_front())
@@ -2109,6 +2115,11 @@ func _on_speech(pkt: Array) -> void:
 		return
 	var path = pkt[1] if pkt.size() > 1 else []
 	var vars = pkt[2] if pkt.size() > 2 else []
+	# The NPC handing over a quest reward (gameserver EntityQuests.giveReward()):
+	# collected, no more going back to it. (Not sent when the inventory is full
+	# -- the reward stays pending.)
+	if path is Array and path.size() > 0 and str(path[0]) == "QUESTS_REWARD":
+		quest_return.erase(npc.npc_quest_id)
 	# The quest this speech is about: an authored quest's text path names it
 	# (["QUESTS", "<quest id>", stage]), so use that one -- it stays right even
 	# if this NPC's npc_quest_id no longer matches the player's copy of the
@@ -2160,9 +2171,12 @@ func _on_quest(d: Array) -> void:
 	for n in npcs.values():
 		if n.npc_quest_id == q.npc_quest_id:
 			npc = n
-	# Completed away from the quest's NPC: guide the player back to it. (A
-	# hand-in completes while standing next to the NPC, so no arrow then.)
-	if q.status == Quest.Status.COMPLETE and (npc == null or not player.is_next_too_entity(npc)):
+	# Completed with a reward to collect: guide the player back to the quest's
+	# NPC until the reward is actually handed over (its QUESTS_REWARD speech,
+	# see _on_speech()) -- a full inventory keeps it. This includes item
+	# hand-ins, whose reward comes on the next talk. Nothing to collect, no
+	# trip back.
+	if q.status == Quest.Status.COMPLETE and q.has_reward:
 		quest_return[q.npc_quest_id] = true
 	if npc != null:
 		bubbles.erase(npc.id)
@@ -2694,7 +2708,7 @@ static func default_zoom() -> float:
 
 
 ## npc_quest_ids of the NPCs the player should return to (guide arrows):
-## a quest of theirs completed away from them (quest_return), or a
+## a quest of theirs with an uncollected reward (quest_return), or a
 ## collect-items quest whose items are all gathered and only need handing in.
 func quest_return_ids() -> Dictionary:
 	var ids := quest_return.duplicate()

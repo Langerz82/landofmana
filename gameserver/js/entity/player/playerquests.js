@@ -20,6 +20,7 @@ import Messages from '../../message.js';
 import { Types } from '../../common.js';
 import Utils from '../../utils.js';
 import { G_DEBUG } from '../../constants.js';
+import { Data as QuestData } from '../../data/questdata.js';
 
 class PlayerQuests {
     constructor(player) {
@@ -204,6 +205,32 @@ class PlayerQuests {
         this._npcQuestStateKey = key;
         p.packetHandler.send(
             new Messages.Notify('NPC_NO_QUESTS', '', ids).serialize()
+        );
+    }
+
+    // Tells the client, at login, which NPCs still hold a reward (gold or
+    // items) for a quest this player completed but hasn't collected
+    // (WC_NOTIFY group "QUEST_REWARDS_PENDING", followed by their
+    // npcQuestIds), so it guides the player back to them -- completed quests
+    // aren't in the login quest list, so the client can't tell on its own.
+    // Rewards only exist on authored quests (QuestData).
+    sendPendingRewards() {
+        const p = this.player;
+        if (!p.packetHandler) return;
+        const ids = [];
+        for (const id in this.completeQuests) {
+            const cq = this.completeQuests[id];
+            if (!cq || cq.hasOwnProperty('reward')) continue;
+            const def = QuestData[id];
+            if (!def || !(def.gold > 0 || (def.reward || []).length > 0))
+                continue;
+            const npcQuestId = def.npcQuestId >= 0 ? def.npcQuestId : cq.npcid;
+            if (npcQuestId != null && !ids.includes(npcQuestId))
+                ids.push(npcQuestId);
+        }
+        if (ids.length === 0) return;
+        p.packetHandler.send(
+            new Messages.Notify('QUEST_REWARDS_PENDING', '', ids).serialize()
         );
     }
 

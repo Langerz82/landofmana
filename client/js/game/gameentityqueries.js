@@ -66,7 +66,7 @@ export function installGameEntityQueries(proto) {
     };
 
     // npcQuestIds of the NPCs the player should return to (guide arrows): a
-    // quest of theirs completed away from them (this.questReturn), or a
+    // quest of theirs with an uncollected reward (this.questReturn), or a
     // collect-items quest whose items are all gathered and only need handing in.
     proto.getQuestReturnIds = function () {
         const ids = Object.assign({}, this.questReturn);

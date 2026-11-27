@@ -40,6 +40,7 @@
 import { Types } from './common.js';
 import { Data as LangJson } from './data/langdata.js';
 import { G_DIALOGUE_DELAY } from './constants.js';
+import { Data as QuestData } from './data/questdata.js';
 
 const LANG = 'EN';
 const QuestType = Types.QuestType;
@@ -154,8 +155,20 @@ export function registerQuestNpc(npc) {
     if (npc && npc.npcQuestId) questNpcs.set(Number(npc.npcQuestId), npc);
 }
 
+// Whether finishing `quest` earns a reward (gold or items) collected from its
+// NPC -- authored quests only (shared/data/quests.json); generated quests
+// have none. Looked up from the quest's definition, since a player's quest
+// loaded back from the database doesn't carry gold/reward itself.
+function questHasReward(quest) {
+    const def = QuestData[quest.id] || quest;
+    return def.gold > 0 || (def.reward || []).length > 0;
+}
+
 export function getQuestText(quest, withSummary) {
     const text = { desc: getQuestDescPath(quest) };
+    // Reward to collect at the end: the client guides the player back to the
+    // quest's NPC after completing it only when there is one.
+    if (questHasReward(quest)) text.reward = 1;
     // The quest's NPC's name: the client adds "(return to <npc>)" to the
     // quest's summary and offers it as %npc% in quest text.
     const npc = questNpcs.get(Number(quest.npcQuestId));

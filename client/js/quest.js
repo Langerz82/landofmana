@@ -218,15 +218,23 @@ export default class Quest {
         if (!text || typeof text !== 'object') return;
 
         if (text.npc) this.npcName = String(text.npc);
+        // Gold / items to collect from the NPC once it's done (server sends
+        // the flag with every quest update).
+        this.hasReward = !!text.reward;
         const vars = this.getVars();
         if (this.npcName) vars.npc = this.npcName;
         this.desc = langLines(text.desc, vars);
         if ('summary' in text) this.summaryPath = text.summary;
         // Re-filled on every update since %count2% (progress) can change.
         this.summary = langText(this.summaryPath, vars);
-        // Every quest is handed in at (or rewarded by) its NPC: say which one
-        // (quest log, quest alerts).
-        if (this.summary && this.npcName) {
+        // Quests handed in at (item quests) or rewarded by their NPC: say
+        // which one (quest log, quest alerts). One that completes on its own
+        // with nothing to collect needs no trip back, so no "return to".
+        if (
+            this.summary &&
+            this.npcName &&
+            (this.hasReward || this.type === Types.QuestType.GETITEMKIND)
+        ) {
             const ret = getLangPath(['QUEST_RETURN_TO']);
             this.summary +=
                 ' ' +

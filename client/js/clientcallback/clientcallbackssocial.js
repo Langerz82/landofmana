@@ -76,6 +76,12 @@ export function installClientCallbacksSocial(proto) {
             for (const id of data.slice(2)) game.npcNoQuests[Number(id)] = true;
             return;
         }
+        // At login: NPCs holding a quest reward we haven't collected yet
+        // (gameserver PlayerQuests.sendPendingRewards()) -- go back to them.
+        if (data[0] === 'QUEST_REWARDS_PENDING') {
+            for (const id of data.slice(2)) game.questReturn[Number(id)] = true;
+            return;
+        }
         game.showNotification(data);
     };
 

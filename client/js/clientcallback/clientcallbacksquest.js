@@ -64,12 +64,12 @@ export function installClientCallbacksQuest(proto) {
         const npc = game.getNpcByQuestKind(quest.npcQuestId);
         if (npc) game.bubbleManager.destroyBubble(npc.id);
 
-        // Completed away from the quest's NPC: guide the player back to it.
-        // (A hand-in completes while standing next to the NPC, so no arrow then.)
-        if (
-            quest.status === QuestStatus.COMPLETE &&
-            !(npc && game.player.isNextTooEntity(npc))
-        )
+        // Completed with a reward to collect: guide the player back to the
+        // quest's NPC until the reward is actually handed over (its
+        // QUESTS_REWARD speech, see onSpeech) -- a full inventory keeps it.
+        // This includes item hand-ins, whose reward comes on the next talk.
+        // Nothing to collect, no trip back.
+        if (quest.status === QuestStatus.COMPLETE && quest.hasReward)
             game.questReturn[quest.npcQuestId] = true;
 
         if (
@@ -141,6 +141,12 @@ export function installClientCallbacksQuest(proto) {
         // Server-driven npcId with no matching client-side entity (e.g. despawned/unknown) -
         // avoid crashing on the npc.dialogue writes below.
         if (!npc) return;
+
+        // The NPC handing over a quest reward (gameserver
+        // EntityQuests.giveReward()): collected, no more going back to it.
+        // (Not sent when the inventory is full -- the reward stays pending.)
+        if (Array.isArray(path) && path[0] === 'QUESTS_REWARD')
+            delete game.questReturn[npc.npcQuestId];
 
         // The quest this speech is about: an authored quest's text path
         // names it (['QUESTS', '<quest id>', <stage>]), so use that one --
