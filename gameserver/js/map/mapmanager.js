@@ -127,28 +127,62 @@ class MapManager {
     addListedMap(id, name) {
         const self = this;
         this.maps[id] = new Map(this.server, id, name, './maps/' + name + '.json', '');
+        // Maps are set up (entities, areas) only once every map has loaded:
+        // closing off ground nobody can reach needs every map's doors, to know
+        // where teleports land (setUpLoadedMaps()).
         this.maps[id].ready(function () {
-            const map = self.maps[id];
-            map.entities = new MapEntities(
-                self.id,
-                self.server,
-                map
-            );
-            map.entities.mapready();
-            // data/maps/<map>/entity.json first: each of its records has a fixed "id" and is
-            // spawned with exactly that entity id (MapEntityStore.load()), the id (with the map's
-            // base index) that an NPC's npcQuestId and its lang.json NO_MORE_QUESTS line are keyed on.
-            // Then the map file's own entities and the mob/entity areas, numbered on from the
-            // highest fixed id.
-            self.loadSavedEntities(map);
-            map.entities.spawnEntities(map);
-            map.initMobAreas(map.mobAreasData);
-            map.initEntityAreas(map.entityAreasData);
-            map.enterCallback = function (player) {
-                return map.getRandomStartingPosition();
-            };
-            self.MapsReady();
+            self.loadedIds = self.loadedIds || [];
+            self.loadedIds.push(id);
+            if (self.loadedIds.length === Object.keys(self.maps).length) self.setUpLoadedMaps();
         });
+    }
+
+    // Once all maps have loaded: where each map's doors land on the others
+    // (map.arrivals, pixels), then every map set up in turn.
+    setUpLoadedMaps() {
+        const ts = G_TILESIZE;
+        for (const id in this.maps) this.maps[id].arrivals = [];
+        for (const id in this.maps) {
+            for (const door of this.maps[id].doors || []) {
+                const target = this.maps[door.tmap];
+                if (!target || !(door.tx >= 0) || !(door.ty >= 0)) continue;
+                // an edge door lands anywhere along the neighbour's matching edge
+                target.arrivals.push(door.rel
+                    ? { x: door.tx, y: door.ty, w: Math.max(ts, door.width), h: Math.max(ts, door.height) }
+                    : { x: door.tx, y: door.ty, w: ts, h: ts });
+            }
+        }
+        for (const id of this.loadedIds) this.setUpMap(Number(id));
+    }
+
+    setUpMap(id) {
+        const self = this;
+        const map = self.maps[id];
+        map.entities = new MapEntities(
+            self.id,
+            self.server,
+            map
+        );
+        map.entities.mapready();
+        // walkable ground no one can walk or teleport into becomes
+        // collision before anything spawns (map/mapreachability.js)
+        map.sealUnreachableGround();
+        // data/maps/<map>/entity.json first: each of its records has a fixed "id" and is
+        // spawned with exactly that entity id (MapEntityStore.load()), the id (with the map's
+        // base index) that an NPC's npcQuestId and its lang.json NO_MORE_QUESTS line are keyed on.
+        // Then the map file's own entities and the mob/entity areas, numbered on from the
+        // highest fixed id.
+        self.loadSavedEntities(map);
+        map.entities.spawnEntities(map);
+        // ground in a mob/entity area that nothing can reach becomes
+        // collision before the areas spawn (map/mapreachability.js)
+        map.sealAreaPockets();
+        map.initMobAreas(map.mobAreasData);
+        map.initEntityAreas(map.entityAreasData);
+        map.enterCallback = function (player) {
+            return map.getRandomStartingPosition();
+        };
+        self.MapsReady();
     }
 
     // The index of the map named by a config setting such as "start_map": a map index (107 or "107"),

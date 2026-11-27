@@ -108,6 +108,23 @@ for k in args.keep:
             cuts[i] = opts[0]
 NC, NR = len(XS) - 1, len(YS) - 1
 HAS_INT = W < MW
+
+# ---- sealed cliff pockets: the game server paths every section on its own, so walkable ground walled in by
+# cliffs (craters, lava basins) must reach the rest of its own section. Any pocket still sealed with these cut
+# lines gets a ladder (generator/common/ladders.py; gen1.py places them when generating, so normally none are
+# needed here). Only the overworld columns; interior rooms are linked by doors.
+sys.path.insert(0, os.path.join(HERE, 'common'))
+import ladders as LADDERS
+_tl = {l['name']: l for l in layers if l.get('type') == 'tilelayer' and isinstance(l.get('data'), list)}
+if 'Cliffs' in _tl and 'blocking' in _tl:
+    _full = {nm: np.array(l['data'], dtype=np.int64).reshape(H, MW) for nm, l in _tl.items()}
+    _view = {nm: a[:, :W] for nm, a in _full.items()}
+    _solid, _fixed = LADDERS._solid_from_tiled(_view, np.load(os.path.join(HERE, 'common', 'cache', 'colliding.npy')), (H, W))
+    _lad, _sealed = LADDERS.add_ladders(_view['Cliffs'], _view['blocking'], _solid, _fixed, YS[1:-1], XS[1:-1])
+    for nm in ('Cliffs', 'blocking'):
+        if _lad: _tl[nm]['data'] = _full[nm].ravel().tolist()
+    print(f'ladders into sealed cliff pockets: {len(_lad)}' + (f' (left sealed: {len(_sealed)})' if _sealed else '')
+          + (' -- run common/ladders.py on the source map too, to keep it in step' if _lad else ''))
 print(f'{SRC}: {MW}x{H}, overworld {W}x{H} -> {NR} rows x {NC} cols of sections, columns at {XS}, rows at {YS}'
       + (f' + interiors ({MW - W}x{H})' if HAS_INT else ''))
 

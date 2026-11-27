@@ -30,6 +30,12 @@ stamps, cliffs, caves, houses and interiors. Only the world layout is new.
   mob levels. Their dialogue is about those mobs and that section (its area, where it lies, what it borders, the
   nearest town). `gen1.py` saves the NPC spots in `tools/maps/data/map1_npcs.json`; `npcs1.py` turns them into
   NPCs and quests once the map is split (see below).
+- **Ladders into sealed cliff pockets.** Crater rings stamped from the older maps and lava basins enclose walkable
+  ground with no way in (their cave mouths are doors to the interiors). Each such pocket gets a ladder down its
+  front face (or back wall), like the mesas' (`../common/ladders.py`), checked per section of the split
+  (`--split-rows`, default `256,474,768`, the README's split below) because the game server paths each section on
+  its own. Without them mobs spawn on those floors and can't path out ("findPath - Error while finding the path").
+  The game server logs any mob area that still holds such ground when it loads (`gameserver/js/map/mapreachability.js`).
 - Checkpoints (one per 128x128
   block plus the start town's), the beginner-quest NPC and the resource-node entity areas are made as in map2.
 - **Interiors** for every enterable house and cave mouth are packed into the right 512x1024, as in map2.

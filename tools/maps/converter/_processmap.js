@@ -410,12 +410,20 @@ module.exports = function processMap(json, jsontsx, options) {
 
     if (cull) console.info("Hidden tiles left out of the client map: " + cull.count + " (MAP_CULL=0 keeps them)");
 
-    // If combined empty layer then make it a collision.
+    // A cell with no tile on any layer is collision. (map.data is filled with 0 up front, so this used to
+    // test `=== undefined` and never match: the empty space round interior rooms came out walkable.)
+    var emptyClosed = 0;
     for (var i = 0, max = length; i < max; i += 1) {
-        if(map.data[i] === undefined) {
+        var dv = map.data[i];
+        if ((dv === undefined || dv === 0 || (dv instanceof Array && dv.length === 0)) && !map.collision[i]) {
             map.collision[i] = 1;
+            emptyClosed++;
         }
     }
+    if (emptyClosed) console.info("Empty cells made collision: " + emptyClosed);
+
+    // Sections nothing can reach become collision: see closeUnreachable() below.
+    closeUnreachable(map, TiledJSON);
 
     return map;
 };
@@ -432,6 +440,72 @@ module.exports = function processMap(json, jsontsx, options) {
 //   "map1" with wx/wy  the part holding full-map tile (wx, wy), landing on that tile
 // So a door into a split map names the map (and a full-map tile) instead of a part's index, and only
 // needs converting again (split.py --convert does it) after that map is re-split.
+// Walkable sections of a map that no door (edge doors included) or checkpoint is in can't be reached by
+// players, and the game server can't path anything in or out of them (crater floors, lava basins, ground
+// walled in by cliffs): mobs and resource nodes placed there get stuck ("findPath - Error while finding the
+// path to ..."). Their cells are made collision here -- the tiles are still drawn -- in both the server and
+// the client map, so the two agree. Sections are 4-connected, as the game server's pathfinding walks.
+// A map with no doors or checkpoints at all is left as it is. Returns the number of cells closed.
+function closeUnreachable(map, TiledJSON) {
+    var w = map.width, h = map.height, n = w * h, ts = map.tilesize || G_TILESIZE;
+    var col = map.collision;
+    var labels = new Int32Array(n), queue = new Int32Array(n), sizes = [0], first = [0], next = 0;
+    for (var s = 0; s < n; s++) {
+        if (col[s] || labels[s]) continue;
+        var id = ++next, head = 0, tail = 0;
+        queue[tail++] = s; labels[s] = id;
+        while (head < tail) {
+            var p = queue[head++], px = p % w;
+            if (px > 0 && !labels[p - 1] && !col[p - 1]) { labels[p - 1] = id; queue[tail++] = p - 1; }
+            if (px < w - 1 && !labels[p + 1] && !col[p + 1]) { labels[p + 1] = id; queue[tail++] = p + 1; }
+            if (p >= w && !labels[p - w] && !col[p - w]) { labels[p - w] = id; queue[tail++] = p - w; }
+            if (p + w < n && !labels[p + w] && !col[p + w]) { labels[p + w] = id; queue[tail++] = p + w; }
+        }
+        sizes.push(tail); first.push(s);
+    }
+    // where players come in: doors (map.doors, both modes) and checkpoints (read from the Tiled layer
+    // here, since only the server mode keeps them)
+    var entry = {}, entries = 0;
+    var addRect = function (x, y, rw, rh) {
+        rw = rw || ts; rh = rh || ts;
+        var tx0 = Math.max(0, Math.floor(x / ts)), ty0 = Math.max(0, Math.floor(y / ts));
+        var tx1 = Math.min(w - 1, Math.floor((x + rw - 1) / ts)), ty1 = Math.min(h - 1, Math.floor((y + rh - 1) / ts));
+        entries++;
+        for (var ty = ty0; ty <= ty1; ty++)
+            for (var tx = tx0; tx <= tx1; tx++) {
+                var r = labels[ty * w + tx];
+                if (r) entry[r] = true;
+            }
+    };
+    _.each(map.doors, function (d) { addRect(d.x, d.y, d.width, d.height); });
+    _.each(TiledJSON.layers, function (layer) {
+        if (layer.type === "objectgroup" && layer.name.toLowerCase() === "checkpoints")
+            _.each(layer.objects, function (o) { addRect(~~o.x, ~~o.y, ~~o.width, ~~o.height); });
+    });
+    if (!entries) {
+        console.info("Unreachable sections: the map has no doors or checkpoints, nothing closed.");
+        return 0;
+    }
+    var closed = [], total = 0;
+    for (var r = 1; r <= next; r++) {
+        if (entry[r]) continue;
+        closed.push({ r: r, n: sizes[r], x: first[r] % w, y: Math.floor(first[r] / w) });
+        total += sizes[r];
+    }
+    if (!total) return 0;
+    for (var s = 0; s < n; s++) {
+        if (labels[s] && !entry[labels[s]]) col[s] = 1;
+    }
+    closed.sort(function (a, b) { return b.n - a.n; });
+    var wx = map.worldX || 0, wy = map.worldY || 0;
+    console.info("Unreachable sections made collision: " + total + " cells in " + closed.length + " sections (" +
+        closed.slice(0, 10).map(function (c) {
+            return "tile " + c.x + "," + c.y + (wx || wy ? " [full map " + (c.x + wx) + "," + (c.y + wy) + "]" : "") +
+                ": " + c.n;
+        }).join("; ") + (closed.length > 10 ? "; ... " + (closed.length - 10) + " more" : "") + ")");
+    return total;
+}
+
 var mapListCache = null;
 function readMapList() {
     if (mapListCache) return mapListCache;

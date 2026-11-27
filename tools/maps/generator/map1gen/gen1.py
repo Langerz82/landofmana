@@ -49,6 +49,9 @@ ap.add_argument('--width', type=int, default=512, help='overworld width (default
 ap.add_argument('--height', type=int, default=1024, help='map height (default 1024)')
 ap.add_argument('--interior-width', type=int, default=512, help='width of the interior strip (default 512)')
 ap.add_argument('--preview', default=None, help='optional PNG preview path (2px per tile)')
+ap.add_argument('--split-rows', default='256,474,768',
+                help="row cut lines split.py will use (README: 256, moved to 474 by --keep, 768): every section is "
+                     "checked by itself for sealed cliff pockets (common/ladders.py)")
 args = ap.parse_args()
 SEED, OUT = args.seed, args.out
 W = args.width; INTERIOR_W = args.interior_width; MAPW = W + INTERIOR_W; H = args.height
@@ -1293,6 +1296,27 @@ def is_solid():
     deck = np.isin(LY['Bridge'], [8, 9])
     return sol & ~deck
 solid = is_solid()
+# Sealed cliff pockets: the crater rings stamped from the older maps (cliff_volc / cliff_desert) and lava basins
+# enclose walkable ground with no way in (their cave mouths are doors to the interiors). Mobs spawn and roam onto
+# those floors and the game server can't path them out. Each such pocket gets a ladder down its front face
+# (or its back wall), like the mesas' ladders above; see common/ladders.py. Checked per section of the split
+# (--split-rows), since the game server paths every section on its own. No random numbers: later draws don't change.
+import ladders as LADDERS
+# the main area before the ladders: checkpoints are placed in it (free_rect), so they stay off crater floors and
+# the seed keeps placing them where it did before this step existed
+_lab0, _n0 = ndimage.label(~solid)
+_main0 = (_lab0 == int(np.argmax(np.bincount(_lab0.ravel())[1:])) + 1) if _n0 else np.zeros_like(solid)
+del _lab0
+_fixed = blk & (LY['Cliffs'] == 0)
+for _nm, _a in LY.items():
+    if _nm in ('blocking', 'Cliffs'): continue
+    _fixed |= (_a > 0) & np.isin(_a, list(colliding))
+_fixed &= ~np.isin(LY['Bridge'], [8, 9])
+_lrows = [int(v) for v in args.split_rows.split(',') if v.strip()]
+_lad, _sealed = LADDERS.add_ladders(LY['Cliffs'], LY['blocking'], solid, _fixed, rows=_lrows, log=log)
+for _x, _y, _n in _lad:
+    blk[_y:_y + 3, _x] = False
+log(f'ladders into sealed cliff pockets: {len(_lad)}', f'(left sealed: {len(_sealed)})' if _sealed else '')
 lab, n = ndimage.label(~solid)
 sizes = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1))
 main = int(np.argmax(sizes)) + 1
@@ -1307,11 +1331,11 @@ def obj(**kw):
     o = dict(height=0, id=oid[0], name='', rotation=0, type='', visible=True, width=0, x=0, y=0)
     o.update(kw); oid[0] += 1; return o
 def free_rect(region, w, h, tries=4000):
-    ys, xs = np.nonzero(region & (lab == main))
+    ys, xs = np.nonzero(region & _main0)
     for _ in range(tries):
         k = rng.integers(len(ys)); y, x = int(ys[k]), int(xs[k])
         sub = solid[y:y + h, x:x + w]
-        if sub.shape == (h, w) and not sub.any() and (lab[y:y + h, x:x + w] == main).all():
+        if sub.shape == (h, w) and not sub.any() and _main0[y:y + h, x:x + w].all():
             return y, x
     return None
 # ---------------------------------------------------------------- object layers

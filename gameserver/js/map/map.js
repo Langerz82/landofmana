@@ -22,6 +22,7 @@ import Checkpoint from '../area/checkpoint.js';
 import Area from '../area/area.js';
 import MapArea from '../area/maparea.js';
 import MobArea from '../area/mobarea.js';
+import { sealUnreachableAreaGround, sealUnreachableMapGround } from './mapreachability.js';
 import EntityArea from '../area/entityarea.js';
 // FIX: this import was commented out, but getRandomStartingPosition(),
 // getRandomPositionCollide(), getRandomPositionArea(), and getRandomPosition()
@@ -245,6 +246,7 @@ class Map {
         writeGroupAreas(this.name, data);
         const live = localizeArea(this, saved) ||
             Object.assign({}, saved, { x: area.x, y: area.y });
+        this.sealAreaPockets([{ data: live, kind }]);
         if (kind === 'mob') this.initMobAreas([live]);
         else this.addEntityArea(live);
         return saved;
@@ -582,6 +584,51 @@ class Map {
                 }
             });
         //}, 10000);
+    }
+
+    // Every walkable section of this map part that no one can walk into from a
+    // door, edge door or checkpoint, nor teleport into (this.arrivals: where
+    // the doors of every map land on this one, set by MapManager), becomes
+    // collision on this server's grid and is logged (map/mapreachability.js).
+    // MapManager calls it once all maps have loaded, before this map spawns
+    // anything. Returns the number of tiles closed.
+    sealUnreachableGround() {
+        try {
+            return sealUnreachableMapGround(this);
+        } catch (e) {
+            console.error('Map ' + this.name + ': unreachable ground check failed: ' + e.stack);
+            return 0;
+        }
+    }
+
+    // Walkable ground inside a mob or entity area that no door or checkpoint
+    // leads to (a crater floor, the empty space round an interior room) is
+    // turned into collision on this server's grid before the areas spawn, so
+    // nothing is placed where it can't path out ("findPath - Error while
+    // finding the path to ..."), and each case is logged to fix in the map
+    // file (map/mapreachability.js). Called by MapManager before
+    // initMobAreas/initEntityAreas with no argument (every area in the map's
+    // area data), and by addAdminArea with the one new area as
+    // [{ data, kind }]. Areas already running are only protected, never
+    // closed. Returns the number of tiles closed.
+    sealAreaPockets(added) {
+        const wrap = (a, kind) => {
+            const area = new Area(this, a.id, a.x, a.y, a.w, a.h, !!a.elipse);
+            if (a.clip) area.clip = a.clip;
+            return { area, kind, caption: a.caption };
+        };
+        const list = added
+            ? added.map((e) => wrap(e.data, e.kind))
+            : (this.mobAreasData || []).map((a) => wrap(a, 'mob'))
+                  .concat((this.entityAreasData || []).map((a) => wrap(a, 'entity')));
+        const live = (this.mobAreas || []).map((area) => ({ area, kind: 'mob', check: false }))
+            .concat((this.entityAreas || []).map((area) => ({ area, kind: 'entity', check: false })));
+        try {
+            return sealUnreachableAreaGround(this, list.concat(live));
+        } catch (e) {
+            console.error('Map ' + this.name + ': unreachable area ground check failed: ' + e.stack);
+            return 0;
+        }
     }
 
     initCheckpoints(cpList) {
