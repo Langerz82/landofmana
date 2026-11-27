@@ -40,6 +40,23 @@ const GUIDE_COLOR := Color(0, 1, 1, 0.85)      # NPC with quests for the player
 const GUIDE_QUEST_COLOR := Color("#ffd23f")   # quest done: go back to this NPC
 const GUIDE_MOB_COLOR := Color(1, 1, 1, 0.9)   # mob to kill for an active quest (kill / collect items)
 
+# Mobs of one kind within GUIDE_MOB_GROUP_TILES of a group's lead mob share
+# one arrow (at the group's middle, labelled "Name xN"); at most
+# GUIDE_MOB_MAX_GROUPS arrows per kind, nearest first.
+const GUIDE_MOB_GROUP_TILES := 6.0
+const GUIDE_MOB_MAX_GROUPS := 3
+# Mob arrows stick to the groups they point at (no flipping as mobs wander):
+# another group only takes an arrow's place when it's at least
+# GUIDE_MOB_SWITCH_RATIO and GUIDE_MOB_SWITCH_TILES closer.
+const GUIDE_MOB_SWITCH_RATIO := 0.25
+const GUIDE_MOB_SWITCH_TILES := 3.0
+# How fast a mob arrow's direction eases toward its target (per second;
+# higher = snappier). Frame-rate independent; big turns catch up just as fast.
+const GUIDE_MOB_TURN_RATE := 8.0
+
+var _guide_mob_groups: Dictionary = {}   # mob kind -> ids of the lead mobs of the groups shown
+var _guide_mob_angle: Dictionary = {}    # "kind:lead id" -> [smoothed direction (radians), ticks msec]
+
 ## Overall size of the guide arrows and their name text (1 = normal).
 var guide_pointer_scale := 1.25
 
@@ -136,30 +153,83 @@ func _draw_guides(s: float) -> void:
 		_draw_edge_arrow(plain[i][2], str(plain[i][1].ename), GUIDE_COLOR, false, plain[i][0])
 	for q in quest:
 		_draw_edge_arrow(q[1], str(q[0].ename), GUIDE_QUEST_COLOR, true, q[2])
-	# Nearest off-screen mob of each quest-target kind.
+	# Off-screen mobs of each quest-target kind, in groups: mobs within
+	# GUIDE_MOB_GROUP_TILES of a group's lead share one arrow. Groups shown
+	# last frame are formed first around the same lead, so they keep their
+	# identity, and keep their arrow unless another group is clearly closer
+	# (GUIDE_MOB_SWITCH_*).
 	var kinds := _guide_mob_kinds()
-	if kinds.is_empty():
-		return
-	var mobs: Dictionary = {}   # kind -> [mob, screen pos, dist]
+	var cands: Dictionary = {}   # kind -> [[mob, dist], ...]
 	for e in world.entities.values():
+		if kinds.is_empty():
+			break
 		if not is_instance_valid(e) or not (e is Mob) or e.hidden_by_area or e.is_dead or e.is_dying:
 			continue
-		if not kinds.has(int(e.kind)):
+		var k := int(e.kind)
+		if not kinds.has(k):
 			continue
 		var sp := _to_screen(Vector2(e.x, e.y))
 		if screen.has_point(sp):
 			_draw_quest_marker(e, sp, s, Color(GUIDE_MOB_COLOR, 1.0))   # on screen: white marker over it
 			continue
-		var dist := Vector2(e.x - p.x, e.y - p.y).length()
-		if not mobs.has(e.kind) or dist < mobs[e.kind][2]:
-			mobs[e.kind] = [e, sp, dist]
-	for k in mobs:
-		var m: Array = mobs[k]
-		_draw_edge_arrow(m[1], _mob_name(int(k)), GUIDE_MOB_COLOR, false, m[2])
+		if not cands.has(k):
+			cands[k] = []
+		cands[k].append([e, Vector2(e.x - p.x, e.y - p.y).length()])
+	var group_px := GUIDE_MOB_GROUP_TILES * TS
+	var groups: Array = []   # [kind, lead, member count, world centre, dist]
+	for k in cands:
+		var prev: Array = _guide_mob_groups.get(k, [])
+		var list: Array = cands[k]
+		list.sort_custom(func(a, b):
+			var pa: bool = prev.has(a[0].id)
+			var pb: bool = prev.has(b[0].id)
+			if pa != pb:
+				return pa
+			return a[1] < b[1])
+		var used: Dictionary = {}
+		var kind_groups: Array = []   # [rank, kind, lead, count, centre, dist]
+		for c_lead in list:
+			var lead = c_lead[0]
+			if used.has(lead.id):
+				continue
+			var sum := Vector2.ZERO
+			var count := 0
+			for c in list:
+				var e = c[0]
+				if used.has(e.id) or Vector2(e.x - lead.x, e.y - lead.y).length() > group_px:
+					continue
+				used[e.id] = true
+				sum += Vector2(e.x, e.y)
+				count += 1
+			var centre := sum / count
+			var dist := Vector2(centre.x - p.x, centre.y - p.y).length()
+			# A group already shown ranks as if this much closer.
+			var rank := dist - maxf(dist * GUIDE_MOB_SWITCH_RATIO, GUIDE_MOB_SWITCH_TILES * TS) if prev.has(lead.id) else dist
+			kind_groups.append([rank, k, lead, count, centre, dist])
+		kind_groups.sort_custom(func(a, b): return a[0] < b[0])
+		var leads: Array = []
+		for i in range(mini(kind_groups.size(), GUIDE_MOB_MAX_GROUPS)):
+			var g: Array = kind_groups[i]
+			leads.append(g[2].id)
+			groups.append(g.slice(1))
+		_guide_mob_groups[k] = leads
+	# Forget the groups / smoothed directions of kinds no longer needed.
+	for k in _guide_mob_groups.keys():
+		if not cands.has(k):
+			_guide_mob_groups.erase(k)
+	var keep: Dictionary = {}
+	for g in groups:
+		keep["%d:%d" % [g[0], g[1].id]] = true
+	for key in _guide_mob_angle.keys():
+		if not keep.has(key):
+			_guide_mob_angle.erase(key)
+	for g in groups:
+		var label := _mob_name(int(g[0]))
+		if g[2] > 1:
+			label += " x%d" % g[2]
+		_draw_edge_arrow(_to_screen(g[3]), label, GUIDE_MOB_COLOR, false, g[4], "%d:%d" % [g[0], g[1].id])
 
 
-## Mob kinds the player has to kill for an unfinished quest: the target of a
-## kill-mob-kind quest, or the mob dropping a collect-items quest's items.
 ## npc_quest_ids of the NPCs whose quest the player has accepted and not finished.
 func _guide_active_quest_npcs() -> Dictionary:
 	var ids := {}
@@ -171,6 +241,8 @@ func _guide_active_quest_npcs() -> Dictionary:
 	return ids
 
 
+## Mob kinds the player has to kill for an unfinished quest: the target of a
+## kill-mob-kind quest, or the mob dropping a collect-items quest's items.
 func _guide_mob_kinds() -> Dictionary:
 	var kinds := {}
 	if world.data == null:
@@ -205,7 +277,10 @@ static func guide_scale(dist: float) -> float:
 ## Arrow on the screen edge, on the line from the screen centre to `target`
 ## (an off-screen point), pointing at it, with `label` just inside it. The
 ## arrow is bigger the closer the NPC is (`dist`, world pixels; guide_scale()).
-func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool, dist: float) -> void:
+## With `smooth_key` (a mob group), the arrow's direction eases toward the
+## target over a few frames (GUIDE_MOB_TURN_RATE) instead of snapping, so
+## jittery or switching targets slide rather than jump.
+func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool, dist: float, smooth_key = null) -> void:
 	var u := UiStyle.ui_scale
 	var ps := guide_pointer_scale
 	var screen := get_viewport_rect()
@@ -213,6 +288,16 @@ func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool,
 	var dir := target - c
 	if dir.length_squared() < 1.0:
 		return
+	if smooth_key != null:
+		var now := Time.get_ticks_msec()
+		var goal := dir.angle()
+		var a := goal
+		if _guide_mob_angle.has(smooth_key):
+			var prev: Array = _guide_mob_angle[smooth_key]
+			var dt := clampf((now - int(prev[1])) / 1000.0, 0.0, 0.25)
+			a = float(prev[0]) + angle_difference(float(prev[0]), goal) * (1.0 - exp(-GUIDE_MOB_TURN_RATE * dt))
+		_guide_mob_angle[smooth_key] = [a, now]
+		dir = Vector2.from_angle(a) * dir.length()
 	var m := GUIDE_MARGIN * u
 	var hw := maxf(screen.size.x / 2 - m, 1.0)
 	var hh := maxf(screen.size.y / 2 - m, 1.0)

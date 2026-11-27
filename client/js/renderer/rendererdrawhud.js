@@ -53,6 +53,19 @@ const GUIDE_MOB_COLOR = 0xffffff; // mob to kill for an active quest (kill / col
 // Overall size of the guide arrows and their name text (1 = normal; default 1.25). Change it
 // at runtime with game.renderer.guidePointerScale.
 const GUIDE_POINTER_SCALE = 1.25;
+// Mobs of one kind within GUIDE_MOB_GROUP_TILES of a group's lead mob share
+// one arrow (at the group's middle, labelled "Name xN"); at most
+// GUIDE_MOB_MAX_GROUPS arrows per kind, nearest first.
+const GUIDE_MOB_GROUP_TILES = 6;
+const GUIDE_MOB_MAX_GROUPS = 3;
+// Mob arrows stick to the groups they point at (no flipping as mobs wander):
+// another group only takes an arrow's place when it's at least
+// GUIDE_MOB_SWITCH_RATIO and GUIDE_MOB_SWITCH_TILES closer.
+const GUIDE_MOB_SWITCH_RATIO = 0.25;
+const GUIDE_MOB_SWITCH_TILES = 3;
+// How fast a mob arrow's direction eases toward its target (per second;
+// higher = snappier). Frame-rate independent; big turns catch up just as fast.
+const GUIDE_MOB_TURN_RATE = 8;
 
 // Mob kinds the player has to kill for an unfinished quest: the target of a
 // kill-mob-kind quest, or the mob dropping a collect-items quest's items.
@@ -145,10 +158,17 @@ export function installRendererDrawHud(proto) {
         }
         plain.sort((a, b) => a[0] - b[0]);
 
-        // Nearest off-screen mob of each quest-target kind.
+        // Off-screen mobs of each quest-target kind, in groups: mobs within
+        // GUIDE_MOB_GROUP_TILES of a group's lead share one arrow. Groups
+        // shown last frame are formed first around the same lead, so they
+        // keep their identity, and keep their arrow unless another group is
+        // clearly closer (GUIDE_MOB_SWITCH_*).
         const mobKinds = guideMobKinds();
-        const mobs = {};
+        const groups = []; // {kind, lead, members, x, y, dist}
+        const tracked = this.guideMobGroups || (this.guideMobGroups = {});
+        const groupPx = GUIDE_MOB_GROUP_TILES * ts;
         for (const kind in mobKinds) {
+            const cands = []; // [mob, dist]
             for (const e of this.guideMobsOfKind(Number(kind))) {
                 if (area && !area.contains(e)) continue;
                 const sx = (e.x - c.x) * s;
@@ -158,10 +178,45 @@ export function installRendererDrawHud(proto) {
                     this.drawGuideMarker(gfx, e, sx, sy, GUIDE_MOB_COLOR, now);
                     continue;
                 }
-                const dist = Math.hypot(e.x - p.x, e.y - p.y);
-                if (!mobs[kind] || dist < mobs[kind][3]) mobs[kind] = [e, sx, sy, dist];
+                cands.push([e, Math.hypot(e.x - p.x, e.y - p.y)]);
             }
+            const prev = tracked[kind] || [];
+            const isPrev = (e) => prev.includes(e.id);
+            cands.sort((a, b) => (isPrev(b[0]) - isPrev(a[0])) || a[1] - b[1]);
+            const used = new Set();
+            const kindGroups = [];
+            for (const [lead] of cands) {
+                if (used.has(lead)) continue;
+                const members = [];
+                let mx = 0,
+                    my = 0;
+                for (const [e] of cands) {
+                    if (used.has(e) || Math.hypot(e.x - lead.x, e.y - lead.y) > groupPx) continue;
+                    used.add(e);
+                    members.push(e);
+                    mx += e.x;
+                    my += e.y;
+                }
+                mx /= members.length;
+                my /= members.length;
+                const dist = Math.hypot(mx - p.x, my - p.y);
+                // A group already shown ranks as if this much closer.
+                const rank = isPrev(lead)
+                    ? dist - Math.max(dist * GUIDE_MOB_SWITCH_RATIO, GUIDE_MOB_SWITCH_TILES * ts)
+                    : dist;
+                kindGroups.push({ kind, lead, members, x: mx, y: my, dist, rank });
+            }
+            kindGroups.sort((a, b) => a.rank - b.rank);
+            const chosen = kindGroups.slice(0, GUIDE_MOB_MAX_GROUPS);
+            tracked[kind] = chosen.map((g) => g.lead.id);
+            for (const g of chosen) groups.push(g);
         }
+        // Forget the groups / smoothed directions of kinds no longer needed.
+        for (const kind in tracked) if (!mobKinds[kind]) delete tracked[kind];
+        const angles = this.guideMobAngle || (this.guideMobAngle = {});
+        const keep = {};
+        for (const g of groups) keep[g.kind + ':' + g.lead.id] = true;
+        for (const k in angles) if (!keep[k]) delete angles[k];
 
         const shown = {};
         for (let i = 0; i < Math.min(plain.length, GUIDE_MAX_NEAR); i++) {
@@ -173,10 +228,16 @@ export function installRendererDrawHud(proto) {
             this.drawEdgeArrow(gfx, e[0], e[1], e[2], W, H, GUIDE_QUEST_COLOR, 1, true, now, guideScale(e[3], ts));
             shown[e[0].id] = true;
         }
-        for (const kind in mobs) {
-            const e = mobs[kind];
-            this.drawEdgeArrow(gfx, e[0], e[1], e[2], W, H, GUIDE_MOB_COLOR, 0.9, false, now, guideScale(e[3], ts));
-            shown[e[0].id] = 'mob';
+        for (const g of groups) {
+            const t = String(g.lead.title || '');
+            let text = t.charAt(0).toUpperCase() + t.slice(1);
+            if (g.members.length > 1) text += ' x' + g.members.length;
+            this.drawEdgeArrow(
+                gfx, g.lead, (g.x - c.x) * s, (g.y - c.y) * s, W, H,
+                GUIDE_MOB_COLOR, 0.9, false, now, guideScale(g.dist, ts),
+                g.kind + ':' + g.lead.id, text
+            );
+            shown[g.lead.id] = 'mob';
         }
 
         // Hide the labels of NPCs that no longer get an arrow; mob labels are
@@ -221,13 +282,32 @@ export function installRendererDrawHud(proto) {
     // Arrow on the screen edge, on the line from the screen centre to the
     // off-screen point (tx, ty), pointing at it, with the NPC's name just
     // inside it. `scale` (guideScale()) makes it bigger the closer the NPC is.
-    proto.drawEdgeArrow = function (gfx, npc, tx, ty, W, H, color, alpha, pulse, now, scale) {
+    // With `smoothKey`, the arrow's direction eases toward the target over a
+    // few frames (GUIDE_MOB_TURN_RATE) instead of snapping, so jittery or
+    // switching targets slide rather than jump.
+    // `labelText` overrides the label (default: the entity's name).
+    proto.drawEdgeArrow = function (gfx, npc, tx, ty, W, H, color, alpha, pulse, now, scale, smoothKey, labelText) {
         const cx = W / 2,
             cy = H / 2;
-        const dx = tx - cx,
+        let dx = tx - cx,
             dy = ty - cy;
         const len = Math.hypot(dx, dy);
         if (len < 1) return;
+        if (smoothKey) {
+            const angles = this.guideMobAngle || (this.guideMobAngle = {});
+            const target = Math.atan2(dy, dx);
+            const prev = angles[smoothKey];
+            let a = target;
+            if (prev) {
+                const dt = Math.min(Math.max((now - prev.t) / 1000, 0), 0.25);
+                let d = target - prev.a;
+                d = Math.atan2(Math.sin(d), Math.cos(d)); // shortest way round
+                a = prev.a + d * (1 - Math.exp(-GUIDE_MOB_TURN_RATE * dt));
+            }
+            angles[smoothKey] = { a, t: now };
+            dx = Math.cos(a) * len;
+            dy = Math.sin(a) * len;
+        }
         const hw = Math.max(W / 2 - GUIDE_MARGIN, 1);
         const hh = Math.max(H / 2 - GUIDE_MARGIN, 1);
         const t = Math.min(
@@ -257,7 +337,7 @@ export function installRendererDrawHud(proto) {
         const key = 'guide_lbl_' + npc.id;
         let lbl = this.pxSprite[key];
         if (!lbl) {
-            let text = npc.name || '';
+            let text = labelText != null ? labelText : npc.name || '';
             if (!text && npc.title) text = String(npc.title).charAt(0).toUpperCase() + String(npc.title).slice(1);
             lbl = new PIXI.Text(text, new PIXI.TextStyle({
                 fontFamily: 'KomikaHand',
@@ -272,6 +352,7 @@ export function installRendererDrawHud(proto) {
             this.pxSprite[key] = lbl;
         }
         const fs = 4 * this.scale * ps;
+        if (labelText != null && lbl.text !== labelText) lbl.text = labelText;
         lbl.style.fill = color;
         lbl.style.fontSize = fs;
         lbl.style.strokeThickness = 4 * ps;
