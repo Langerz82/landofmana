@@ -29,7 +29,7 @@ func run() -> void:
 	await wait(300)
 	await watch_teleport("sync_to_town", func(): world.warp_to_town())
 	check("no loader thread used", world._loading_thread == null)
-	check("map drawn", world.current_map != null and world.current_map.loaded and world.map_renderer.bg_layers[0].get_used_cells().size() > 0)
+	check("map drawn", world.current_map != null and world.current_map.loaded and world.map_renderer.used_cell_count() > 0)
 	var door = null
 	for d in world.current_map.doors:
 		if d.tmap != world.map_index:
