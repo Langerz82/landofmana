@@ -71,6 +71,11 @@ class EntityQuests {
             }
         }
 
+        // One quest at a time per NPC: never start another while one of this
+        // NPC's quests is still under way or its reward hasn't been handed
+        // over (e.g. an offer dialogue that ends after something changed).
+        if (this.isBusyFor(player)) return;
+
         pQuest = Object.assign(new Quest(), quest);
         pQuest.data = quest.data;
         // FIX: `quest` here is QuestData.Data[questId] -- one shared object
@@ -194,6 +199,29 @@ class EntityQuests {
             }
         }
         return this.getNextQuestId(player) !== null;
+    }
+
+    // Whether `quest` (one of this NPC's, completed by the player) still has
+    // gold or items to hand over.
+    rewardPending(player, quest) {
+        const cq = player.quests.completeQuests[quest.id];
+        if (!cq || cq.hasOwnProperty('reward')) return false;
+        return quest.gold > 0 || (quest.reward || []).length > 0;
+    }
+
+    // Whether this NPC is still dealing with a quest of the player's: one in
+    // progress, or one completed whose reward hasn't been handed over yet.
+    // While so, it offers no other quest -- at most one at a time per NPC.
+    isBusyFor(player) {
+        for (const q of player.quests.quests) {
+            if (q.status !== Types.QuestStatus.COMPLETE && this.ownsQuest(player, q))
+                return true;
+        }
+        for (const id in this.quests) {
+            if (this.quests[id] && this.rewardPending(player, this.quests[id]))
+                return true;
+        }
+        return false;
     }
 
     giveReward(player, quest) {
@@ -331,6 +359,15 @@ class EntityQuests {
             // different NPC's completed quest. giveReward() itself already
             // keys strictly off quest.id, so the gate here should too.
             if (player.quests.completeQuests.hasOwnProperty(quest.id)) {
+                // A reward still to hand over: the NPC waits for it. If it
+                // can't be given (inventory full -- giveReward() says so),
+                // stop here rather than move on to offering the next quest.
+                if (this.rewardPending(player, quest)) {
+                    this.giveReward(player, quest);
+                    return true;
+                }
+                // Nothing to hand over (XP-only): giveReward() just marks it
+                // collected and returns false, so the talk carries on.
                 if (this.giveReward(player, quest)) {
                     return true;
                 }
