@@ -36,8 +36,12 @@ const GUIDE_CLOSE_TILES := 12.0
 const GUIDE_FAR_TILES := 80.0
 const GUIDE_SCALE_CLOSE := 1.3
 const GUIDE_SCALE_FAR := 0.5
-const GUIDE_COLOR := Color(1, 1, 1, 0.85)
+const GUIDE_COLOR := Color(0, 1, 1, 0.85)      # NPC with quests for the player
 const GUIDE_QUEST_COLOR := Color("#ffd23f")   # quest done: go back to this NPC
+const GUIDE_MOB_COLOR := Color(1, 1, 1, 0.9)   # mob to kill for an active quest (kill / collect items)
+
+## Overall size of the guide arrows and their name text (1 = normal).
+var guide_pointer_scale := 1.25
 
 var world = null
 
@@ -93,12 +97,15 @@ func _draw() -> void:
 ## (white, the nearest GUIDE_MAX_NEAR within GUIDE_NEAR_TILES) and at any NPC
 ## the player has to return to for a completed quest (gold, pulsing, at any
 ## distance on the map). A quest NPC that's on screen gets a bobbing gold
-## marker over its name instead.
+## marker over its name instead. NPCs with quests for the player get cyan
+## arrows; the nearest off-screen mob of each kind needed for an unfinished
+## kill / collect-items quest gets a white one.
 func _draw_guides(s: float) -> void:
 	var p = world.player
 	var screen := get_viewport_rect()
 	var returns: Dictionary = world.quest_return_ids()
 	var near_px := float(GUIDE_NEAR_TILES * TS)
+	var active := _guide_active_quest_npcs()
 	var plain: Array = []
 	var quest: Array = []
 	for n in world.npcs.values():
@@ -107,8 +114,12 @@ func _draw_guides(s: float) -> void:
 		var is_quest: bool = returns.has(n.npc_quest_id)
 		var sp := _to_screen(Vector2(n.x, n.y))
 		if screen.has_point(sp):
+			# On screen: bobbing marker over its name instead of an arrow
+			# (gold: quest to hand in; cyan: new quest for us).
 			if is_quest:
-				_draw_quest_marker(n, sp, s)
+				_draw_quest_marker(n, sp, s, GUIDE_QUEST_COLOR)
+			elif not world.npc_no_quests.has(n.npc_quest_id) and not active.has(n.npc_quest_id):
+				_draw_quest_marker(n, sp, s, Color(GUIDE_COLOR, 1.0))
 			continue
 		var dist := Vector2(n.x - p.x, n.y - p.y).length()
 		if is_quest:
@@ -116,6 +127,8 @@ func _draw_guides(s: float) -> void:
 			continue
 		if world.npc_no_quests.has(n.npc_quest_id):
 			continue   # nothing more for us there (no more quests): no arrow
+		if active.has(n.npc_quest_id):
+			continue   # their quest is already under way: no arrow until it's done
 		if dist <= near_px:
 			plain.append([dist, n, sp])
 	plain.sort_custom(func(a, b): return a[0] < b[0])
@@ -123,6 +136,63 @@ func _draw_guides(s: float) -> void:
 		_draw_edge_arrow(plain[i][2], str(plain[i][1].ename), GUIDE_COLOR, false, plain[i][0])
 	for q in quest:
 		_draw_edge_arrow(q[1], str(q[0].ename), GUIDE_QUEST_COLOR, true, q[2])
+	# Nearest off-screen mob of each quest-target kind.
+	var kinds := _guide_mob_kinds()
+	if kinds.is_empty():
+		return
+	var mobs: Dictionary = {}   # kind -> [mob, screen pos, dist]
+	for e in world.entities.values():
+		if not is_instance_valid(e) or not (e is Mob) or e.hidden_by_area or e.is_dead or e.is_dying:
+			continue
+		if not kinds.has(int(e.kind)):
+			continue
+		var sp := _to_screen(Vector2(e.x, e.y))
+		if screen.has_point(sp):
+			_draw_quest_marker(e, sp, s, Color(GUIDE_MOB_COLOR, 1.0))   # on screen: white marker over it
+			continue
+		var dist := Vector2(e.x - p.x, e.y - p.y).length()
+		if not mobs.has(e.kind) or dist < mobs[e.kind][2]:
+			mobs[e.kind] = [e, sp, dist]
+	for k in mobs:
+		var m: Array = mobs[k]
+		_draw_edge_arrow(m[1], _mob_name(int(k)), GUIDE_MOB_COLOR, false, m[2])
+
+
+## Mob kinds the player has to kill for an unfinished quest: the target of a
+## kill-mob-kind quest, or the mob dropping a collect-items quest's items.
+## npc_quest_ids of the NPCs whose quest the player has accepted and not finished.
+func _guide_active_quest_npcs() -> Dictionary:
+	var ids := {}
+	if world.data == null:
+		return ids
+	for q in world.data.quests.values():
+		if q.status != Quest.Status.COMPLETE:
+			ids[q.npc_quest_id] = true
+	return ids
+
+
+func _guide_mob_kinds() -> Dictionary:
+	var kinds := {}
+	if world.data == null:
+		return kinds
+	for q in world.data.quests.values():
+		if q.status == Quest.Status.COMPLETE or q.object == null:
+			continue
+		if q.type == Quest.QuestType.KILLMOBKIND:
+			if int(q.object.count) > 0 and q.count < int(q.object.count):
+				kinds[int(q.object.kind)] = true
+		elif q.type == Quest.QuestType.GETITEMKIND:
+			if q.object2 != null and int(q.object2.count) > 0 and q.count < int(q.object2.count):
+				kinds[int(q.object.kind)] = true
+	return kinds
+
+
+func _mob_name(kind: int) -> String:
+	var mob := GameData.get_mob(kind)
+	if mob.is_empty():
+		return ""
+	var n := str(mob.get("name", mob.get("key", "")))
+	return n.substr(0, 1).to_upper() + n.substr(1)
 
 
 ## Arrow size multiplier for an NPC `dist` world pixels from the player:
@@ -137,6 +207,7 @@ static func guide_scale(dist: float) -> float:
 ## arrow is bigger the closer the NPC is (`dist`, world pixels; guide_scale()).
 func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool, dist: float) -> void:
 	var u := UiStyle.ui_scale
+	var ps := guide_pointer_scale
 	var screen := get_viewport_rect()
 	var c := screen.get_center()
 	var dir := target - c
@@ -148,7 +219,7 @@ func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool,
 	var pos := c + dir * minf(hw / maxf(absf(dir.x), 0.001), hh / maxf(absf(dir.y), 0.001))
 	var n := dir.normalized()
 	var side := n.orthogonal()
-	var size := (15.0 if pulse else 11.0) * u * guide_scale(dist)
+	var size := (15.0 if pulse else 11.0) * u * ps * guide_scale(dist)
 	if pulse:
 		size *= 1.0 + 0.15 * sin(Time.get_ticks_msec() / 150.0)
 	var tip := pos + n * size
@@ -156,20 +227,21 @@ func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool,
 		pos - n * size * 0.3, pos - n * size * 0.7 - side * size * 0.85])
 	draw_colored_polygon(pts, color)
 	pts.append(tip)
-	draw_polyline(pts, Color(0, 0, 0, color.a), maxf(1.5, 2.0 * u), true)
+	draw_polyline(pts, Color(0, 0, 0, color.a), maxf(1.5, 2.0 * u * ps), true)
 	if label == "":
 		return
 	# Name just inside the arrow, kept fully on screen.
-	var fs := maxi(NAME_MIN_SIZE, roundi(UiStyle.fs(9) * u))
+	var fs := maxi(roundi(NAME_MIN_SIZE * minf(ps, 1.0)), roundi(UiStyle.fs(9) * u * ps))
 	var w := KOMIKA.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 	var lp := pos - n * (size + fs)
 	lp.x = clampf(lp.x, w / 2 + 4 * u, screen.size.x - w / 2 - 4 * u)
 	lp.y = clampf(lp.y, fs + 4 * u, screen.size.y - fs * 0.5 - 4 * u)
-	_text_centered(label, lp, fs, color, Color(0, 0, 0, color.a), roundi(3 * u))
+	_text_centered(label, lp, fs, color, Color(0, 0, 0, color.a), maxi(1, roundi(3 * u * ps)))
 
 
-## Bobbing gold arrow over the name of an on-screen NPC with a quest to hand in.
-func _draw_quest_marker(e, sp: Vector2, s: float) -> void:
+## Bobbing arrow over the name of an on-screen NPC / mob the guide arrows would
+## otherwise point at (gold: quest to hand in; cyan: new quest; white: quest mob).
+func _draw_quest_marker(e, sp: Vector2, s: float, color: Color = GUIDE_QUEST_COLOR) -> void:
 	var u := UiStyle.ui_scale
 	var y := sp.y - TS * s - name_size() * 1.2
 	if e.type == Types.EntityType.NPCMOVE:
@@ -178,7 +250,7 @@ func _draw_quest_marker(e, sp: Vector2, s: float) -> void:
 	var w := 7.0 * u
 	var h := 9.0 * u
 	var pts := PackedVector2Array([Vector2(sp.x, y), Vector2(sp.x - w, y - h), Vector2(sp.x + w, y - h)])
-	draw_colored_polygon(pts, GUIDE_QUEST_COLOR)
+	draw_colored_polygon(pts, color)
 	pts.append(pts[0])
 	draw_polyline(pts, Color.BLACK, maxf(1.5, 2.0 * u), true)
 

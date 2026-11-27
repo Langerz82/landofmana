@@ -47,16 +47,50 @@ function guideScale(dist, tilesize) {
     );
     return GUIDE_SCALE_CLOSE + (GUIDE_SCALE_FAR - GUIDE_SCALE_CLOSE) * t;
 }
-const GUIDE_COLOR = 0xffffff;
+const GUIDE_COLOR = 0x00ffff; // NPC with quests for the player
 const GUIDE_QUEST_COLOR = 0xffd23f; // quest done: go back to this NPC
+const GUIDE_MOB_COLOR = 0xffffff; // mob to kill for an active quest (kill / collect items)
+// Overall size of the guide arrows and their name text (1 = normal; default 1.25). Change it
+// at runtime with game.renderer.guidePointerScale.
+const GUIDE_POINTER_SCALE = 1.25;
+
+// Mob kinds the player has to kill for an unfinished quest: the target of a
+// kill-mob-kind quest, or the mob dropping a collect-items quest's items.
+// npcQuestIds of the NPCs whose quest the player has accepted and not finished.
+function guideActiveQuestNpcs() {
+    const ids = {};
+    const quests = (game.player && game.player.quests) || {};
+    for (const q of Object.values(quests)) {
+        if (q && q.status !== Types.QuestStatus.COMPLETE) ids[q.npcQuestId] = true;
+    }
+    return ids;
+}
+
+function guideMobKinds() {
+    const kinds = {};
+    const quests = (game.player && game.player.quests) || {};
+    for (const q of Object.values(quests)) {
+        if (!q || q.status === Types.QuestStatus.COMPLETE || !q.object) continue;
+        if (q.type === Types.QuestType.KILLMOBKIND) {
+            if (q.object.count > 0 && q.count < q.object.count)
+                kinds[q.object.kind] = true;
+        } else if (q.type === Types.QuestType.GETITEMKIND) {
+            if (q.object2 && q.object2.count > 0 && q.count < q.object2.count)
+                kinds[q.object.kind] = true;
+        }
+    }
+    return kinds;
+}
 
 export function installRendererDrawHud(proto) {
     // Guide arrows: at the screen edge, pointing at nearby off-screen NPCs
     // (white, the nearest GUIDE_MAX_NEAR within GUIDE_NEAR_TILES) and at any
     // NPC the player has to return to for a completed quest (gold, pulsing,
     // at any distance on the map). A quest NPC that's on screen gets a
-    // bobbing gold marker over its name instead. One Graphics redrawn each
-    // frame, plus a cached name label per NPC.
+    // bobbing gold marker over its name instead. NPCs with quests for the
+    // player get cyan arrows; the nearest off-screen mob of each kind needed
+    // for an unfinished kill / collect-items quest gets a white one. One
+    // Graphics redrawn each frame, plus a cached name label per NPC / mob.
     proto.drawGuideArrows = function () {
         const p = game.player;
         if (!p) return;
@@ -80,6 +114,7 @@ export function installRendererDrawHud(proto) {
         const nearPx = GUIDE_NEAR_TILES * ts;
         const now = Date.now();
 
+        const active = guideActiveQuestNpcs();
         const plain = [];
         const quest = [];
         for (const id in game.npc) {
@@ -90,15 +125,11 @@ export function installRendererDrawHud(proto) {
             const sx = (n.x - c.x) * s;
             const sy = (n.y - c.y) * s;
             if (sx >= 0 && sx <= W && sy >= 0 && sy <= H) {
-                if (isQuest) {
-                    let y = sy - ts * s - 30;
-                    if (n.type === Types.EntityTypes.NPCMOVE) y -= (ts / 2) * s;
-                    y += Math.sin(now / 180) * 4;
-                    gfx.lineStyle(2, 0x000000, 1);
-                    gfx.beginFill(GUIDE_QUEST_COLOR, 1);
-                    gfx.drawPolygon([sx, y, sx - 9, y - 12, sx + 9, y - 12]);
-                    gfx.endFill();
-                }
+                // On screen: bobbing marker over its name instead of an arrow
+                // (gold: quest to hand in; cyan: new quest for us).
+                if (isQuest) this.drawGuideMarker(gfx, n, sx, sy, GUIDE_QUEST_COLOR, now);
+                else if (!(game.npcNoQuests && game.npcNoQuests[n.npcQuestId]) && !active[n.npcQuestId])
+                    this.drawGuideMarker(gfx, n, sx, sy, GUIDE_COLOR, now);
                 continue;
             }
             const dist = Math.hypot(n.x - p.x, n.y - p.y);
@@ -108,9 +139,29 @@ export function installRendererDrawHud(proto) {
             }
             // Nothing more for us there (no more quests): no arrow.
             if (game.npcNoQuests && game.npcNoQuests[n.npcQuestId]) continue;
+            // Their quest is already under way: no arrow until it's done.
+            if (active[n.npcQuestId]) continue;
             if (dist <= nearPx) plain.push([dist, n, sx, sy]);
         }
         plain.sort((a, b) => a[0] - b[0]);
+
+        // Nearest off-screen mob of each quest-target kind.
+        const mobKinds = guideMobKinds();
+        const mobs = {};
+        for (const kind in mobKinds) {
+            for (const e of this.guideMobsOfKind(Number(kind))) {
+                if (area && !area.contains(e)) continue;
+                const sx = (e.x - c.x) * s;
+                const sy = (e.y - c.y) * s;
+                if (sx >= 0 && sx <= W && sy >= 0 && sy <= H) {
+                    // On screen: white bobbing marker over it instead.
+                    this.drawGuideMarker(gfx, e, sx, sy, GUIDE_MOB_COLOR, now);
+                    continue;
+                }
+                const dist = Math.hypot(e.x - p.x, e.y - p.y);
+                if (!mobs[kind] || dist < mobs[kind][3]) mobs[kind] = [e, sx, sy, dist];
+            }
+        }
 
         const shown = {};
         for (let i = 0; i < Math.min(plain.length, GUIDE_MAX_NEAR); i++) {
@@ -122,14 +173,49 @@ export function installRendererDrawHud(proto) {
             this.drawEdgeArrow(gfx, e[0], e[1], e[2], W, H, GUIDE_QUEST_COLOR, 1, true, now, guideScale(e[3], ts));
             shown[e[0].id] = true;
         }
+        for (const kind in mobs) {
+            const e = mobs[kind];
+            this.drawEdgeArrow(gfx, e[0], e[1], e[2], W, H, GUIDE_MOB_COLOR, 0.9, false, now, guideScale(e[3], ts));
+            shown[e[0].id] = 'mob';
+        }
 
-        // Hide the labels of NPCs that no longer get an arrow.
+        // Hide the labels of NPCs that no longer get an arrow; mob labels are
+        // destroyed (mobs respawn with new ids, so they'd pile up otherwise).
         for (const id in this.guideShown || {}) {
             if (shown[id]) continue;
-            const lbl = this.pxSprite['guide_lbl_' + id];
-            if (lbl) lbl.visible = false;
+            const key = 'guide_lbl_' + id;
+            const lbl = this.pxSprite[key];
+            if (!lbl) continue;
+            if (this.guideShown[id] === 'mob') {
+                lbl.destroy();
+                delete this.pxSprite[key];
+            } else lbl.visible = false;
         }
         this.guideShown = shown;
+    };
+
+    // Small bobbing arrow over the name of an on-screen NPC / mob the guide
+    // arrows would otherwise point at.
+    proto.drawGuideMarker = function (gfx, e, sx, sy, color, now) {
+        const s = this.gameScale;
+        const ts = this.tilesize;
+        let y = sy - ts * s - 30;
+        if (e.type === Types.EntityTypes.NPCMOVE) y -= (ts / 2) * s;
+        y += Math.sin(now / 180) * 4;
+        gfx.lineStyle(2, 0x000000, 1);
+        gfx.beginFill(color, 1);
+        gfx.drawPolygon([sx, y, sx - 9, y - 12, sx + 9, y - 12]);
+        gfx.endFill();
+    };
+
+    // Live mobs of `kind` the client knows about.
+    proto.guideMobsOfKind = function (kind) {
+        const out = [];
+        for (const e of game.entities.values()) {
+            if (e && e.type === Types.EntityTypes.MOB && e.kind === kind && !e.isDead && !e.isDying)
+                out.push(e);
+        }
+        return out;
     };
 
     // Arrow on the screen edge, on the line from the screen centre to the
@@ -154,10 +240,11 @@ export function installRendererDrawHud(proto) {
             ny = dy / len;
         const sx = -ny,
             sy = nx;
-        let size = (pulse ? 20 : 15) * (scale || 1);
+        const ps = this.guidePointerScale != null ? this.guidePointerScale : GUIDE_POINTER_SCALE;
+        let size = (pulse ? 20 : 15) * (scale || 1) * ps;
         if (pulse) size *= 1 + 0.15 * Math.sin(now / 150);
 
-        gfx.lineStyle(3, 0x000000, alpha);
+        gfx.lineStyle(3 * ps, 0x000000, alpha);
         gfx.beginFill(color, alpha);
         gfx.drawPolygon([
             px + nx * size, py + ny * size,
@@ -170,7 +257,9 @@ export function installRendererDrawHud(proto) {
         const key = 'guide_lbl_' + npc.id;
         let lbl = this.pxSprite[key];
         if (!lbl) {
-            lbl = new PIXI.Text(npc.name || '', new PIXI.TextStyle({
+            let text = npc.name || '';
+            if (!text && npc.title) text = String(npc.title).charAt(0).toUpperCase() + String(npc.title).slice(1);
+            lbl = new PIXI.Text(text, new PIXI.TextStyle({
                 fontFamily: 'KomikaHand',
                 fill: color,
                 fontSize: 4 * this.scale,
@@ -182,10 +271,12 @@ export function installRendererDrawHud(proto) {
             Container.HUD.addChild(lbl);
             this.pxSprite[key] = lbl;
         }
+        const fs = 4 * this.scale * ps;
         lbl.style.fill = color;
+        lbl.style.fontSize = fs;
+        lbl.style.strokeThickness = 4 * ps;
         lbl.alpha = alpha;
         lbl.visible = true;
-        const fs = 4 * this.scale;
         const lw = lbl.width / 2 + 4,
             lh = lbl.height / 2 + 4;
         lbl.x = Math.min(Math.max(px - nx * (size + fs), lw), W - lw);
