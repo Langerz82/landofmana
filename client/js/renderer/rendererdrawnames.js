@@ -60,11 +60,20 @@ export function installRendererDrawNames(proto) {
             if (entity.data.isAggressive) color = '#FF3333';
 
             name = 'Level ' + entity.level;
-        } else if (entity.type === Types.EntityTypes.NPCSTATIC) {
-            color = '#FFFFFF';
-            name = entity.name;
-        } else if (entity.type === Types.EntityTypes.NPCMOVE) {
-            color = '#00FFFF';
+        } else if (
+            entity.type === Types.EntityTypes.NPCSTATIC ||
+            entity.type === Types.EntityTypes.NPCMOVE
+        ) {
+            // Same colour as the NPC's guide arrow: gold = go back to it
+            // (quest reward / hand-in), cyan = new quest, white = quest in
+            // progress or nothing more for us.
+            const state = game.getNpcGuideState(entity);
+            color =
+                state === 'return'
+                    ? '#ffd23f'
+                    : state === 'available'
+                      ? '#00ffff'
+                      : '#ffffff';
             name = entity.name;
         } else if (entity instanceof Item) {
             const item = entity;
@@ -114,6 +123,7 @@ export function installRendererDrawNames(proto) {
             Container.HUD.addChild(sprite);
             this.pxSprite[spriteKey] = sprite;
         }
+        if (sprite.style.fill !== color) sprite.style.fill = color;
         sprite.text = name; // FIX: .text was never reassigned after creation, so name/stack-count changes never rendered (see drawDebugInfo/drawCombatInfo pattern)
         sprite.visible = true;
         sprite.zIndex = entity.y * (this.camera.gridW * ts) + entity.x;

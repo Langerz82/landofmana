@@ -85,6 +85,23 @@ export function installGameEntityQueries(proto) {
         return ids;
     };
 
+    // An NPC's quest state for the guide arrows / name colour:
+    //   'return'    -- go back to it (quest done / items to hand in)
+    //   'available' -- it has a new quest for the player
+    //   'none'      -- its quest is in progress, or nothing more for us
+    // `returns` (getQuestReturnIds()) can be passed in when already computed.
+    proto.getNpcGuideState = function (npc, returns) {
+        const qid = npc.npcQuestId;
+        if ((returns || this.getQuestReturnIds())[qid]) return 'return';
+        if (this.npcNoQuests && this.npcNoQuests[qid]) return 'none';
+        const quests = (this.player && this.player.quests) || {};
+        for (const q of Object.values(quests)) {
+            if (q && q.npcQuestId === qid && q.status !== Types.QuestStatus.COMPLETE)
+                return 'none';
+        }
+        return 'available';
+    };
+
     proto.getNpcByQuestKind = function (npcQuestId) {
         for (let id in this.npc) {
             const entity = this.npc[id];

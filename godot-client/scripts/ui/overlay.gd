@@ -266,7 +266,16 @@ func _draw_name(e, sp: Vector2, s: float) -> void:
 		color = Color("#FF3333") if e.is_aggressive else Color(1, 1, 0)
 	elif e is Npc:
 		text = e.ename
-		color = Color(0, 1, 1) if e.type == Types.EntityType.NPCMOVE else Color.WHITE
+		# Same colour as the NPC's guide arrow: gold = go back to it (quest
+		# reward / hand-in), cyan = new quest, white = quest in progress or
+		# nothing more for us.
+		match world.npc_guide_state(e):
+			"return":
+				color = GUIDE_QUEST_COLOR
+			"available":
+				color = Color(GUIDE_COLOR, 1.0)
+			_:
+				color = Color.WHITE
 	elif e is ItemEntity:
 		text = e.display_name()
 	if text == "":

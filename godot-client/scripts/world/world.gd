@@ -2706,6 +2706,25 @@ func quest_return_ids() -> Dictionary:
 	return ids
 
 
+## An NPC's quest state for the guide arrows / name colour:
+##   "return"    -- go back to it (quest done / items to hand in)
+##   "available" -- it has a new quest for the player
+##   "none"      -- its quest is in progress, or nothing more for us
+## `returns` (quest_return_ids()) can be passed in when already computed.
+func npc_guide_state(npc, returns = null) -> String:
+	var qid: int = npc.npc_quest_id
+	var r: Dictionary = returns if returns != null else quest_return_ids()
+	if r.has(qid):
+		return "return"
+	if npc_no_quests.has(qid):
+		return "none"
+	if data:
+		for q in data.quests.values():
+			if q.npc_quest_id == qid and q.status != Quest.Status.COMPLETE:
+				return "none"
+	return "available"
+
+
 ## How big the world is drawn compared with the Normal zoom (1 = Normal,
 ## bigger when zoomed in, smaller when zoomed out).
 func zoom_factor() -> float:
