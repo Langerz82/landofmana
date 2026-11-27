@@ -24,8 +24,7 @@
   "server_name" : "RRO2",
   "world_id": 1,
   "production": "heroku",
-
-  "version":123,
+  "version":124,
   "client_data": {
     "shared_dir": "shared"
   },
