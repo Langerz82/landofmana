@@ -53,19 +53,52 @@ const GUIDE_MOB_COLOR = 0xffffff; // mob to kill for an active quest (kill / col
 // Overall size of the guide arrows and their name text (1 = normal; default 1.25). Change it
 // at runtime with game.renderer.guidePointerScale.
 const GUIDE_POINTER_SCALE = 1.25;
-// Mobs of one kind within GUIDE_MOB_GROUP_TILES of a group's lead mob share
-// one arrow (at the group's middle, labelled "Name xN"); at most
-// GUIDE_MOB_MAX_GROUPS arrows per kind, nearest first.
-const GUIDE_MOB_GROUP_TILES = 6;
+// Mobs of one kind near a group's lead mob share one arrow (at the group's
+// middle, labelled "Name xN"); at most GUIDE_MOB_MAX_GROUPS arrows per kind,
+// nearest first. "Near" grows with the lead's distance from the player: far
+// away mobs group loosely, close ones tightly. Group radius (tiles) =
+// distance (tiles) x GUIDE_MOB_GROUP_RATIO, kept between GUIDE_MOB_GROUP_MIN_TILES
+// and GUIDE_MOB_GROUP_MAX_TILES.
+const GUIDE_MOB_GROUP_RATIO = 0.25;
+const GUIDE_MOB_GROUP_MIN_TILES = 2;
+const GUIDE_MOB_GROUP_MAX_TILES = 20;
+
+// Group radius (world px) for a lead mob `dist` world px from the player.
+function guideGroupRadius(dist, tilesize) {
+    const tiles = Math.min(
+        Math.max((dist / tilesize) * GUIDE_MOB_GROUP_RATIO, GUIDE_MOB_GROUP_MIN_TILES),
+        GUIDE_MOB_GROUP_MAX_TILES
+    );
+    return tiles * tilesize;
+}
 const GUIDE_MOB_MAX_GROUPS = 3;
 // Mob arrows stick to the groups they point at (no flipping as mobs wander):
 // another group only takes an arrow's place when it's at least
 // GUIDE_MOB_SWITCH_RATIO and GUIDE_MOB_SWITCH_TILES closer.
 const GUIDE_MOB_SWITCH_RATIO = 0.25;
 const GUIDE_MOB_SWITCH_TILES = 3;
-// How fast a mob arrow's direction eases toward its target (per second;
-// higher = snappier). Frame-rate independent; big turns catch up just as fast.
-const GUIDE_MOB_TURN_RATE = 8;
+// How fast a mob arrow's target point eases toward its group's centre (per
+// second; higher = snappier). Smoothed in world space, so the arrow tracks the
+// camera exactly and only the target's own jumps (server position snaps,
+// mobs joining / leaving the group) glide. Frame-rate independent.
+const GUIDE_MOB_FOLLOW_RATE = 5;
+// When a group's lead changes (lead died, walked on screen, group re-formed),
+// the new arrow carries on from the old one (glides instead of snapping) if
+// it's the same group: they share a mob, or are within this many tiles. An
+// arrow switching to a different group never glides over (that would sweep it
+// across the screen): the old one fades out and the new one fades in.
+const GUIDE_MOB_INHERIT_TILES = 4;
+// A mob stays in the group it was in last frame until it's this many times
+// the group radius from the group's lead (new mobs join within the radius), so
+// mobs wandering around the group's edge - or the player walking toward or
+// away from it - don't keep splitting / merging the arrows.
+const GUIDE_MOB_KEEP_RATIO = 1.5;
+// A mob only switches between "on screen" (marker) and "off screen" (arrow)
+// once it's this far (renderer px) past the screen edge, so one walking along
+// the edge doesn't flicker between the two.
+const GUIDE_MOB_EDGE_PX = 24;
+// Mob arrows fade in / out over this long (ms) instead of popping in / out.
+const GUIDE_MOB_FADE_MS = 250;
 
 // Mob kinds the player has to kill for an unfinished quest: the target of a
 // kill-mob-kind quest, or the mob dropping a collect-items quest's items.
@@ -159,41 +192,74 @@ export function installRendererDrawHud(proto) {
         plain.sort((a, b) => a[0] - b[0]);
 
         // Off-screen mobs of each quest-target kind, in groups: mobs within
-        // GUIDE_MOB_GROUP_TILES of a group's lead share one arrow. Groups
-        // shown last frame are formed first around the same lead, so they
-        // keep their identity, and keep their arrow unless another group is
-        // clearly closer (GUIDE_MOB_SWITCH_*).
+        // guideGroupRadius() of a group's lead share one arrow. Groups
+        // shown last frame are formed first around the same lead and keep
+        // their members out to GUIDE_MOB_KEEP_RATIO x that, so they keep their
+        // identity, and keep their arrow unless another group is clearly
+        // closer (GUIDE_MOB_SWITCH_*).
         const mobKinds = guideMobKinds();
-        const groups = []; // {kind, lead, members, x, y, dist}
-        const tracked = this.guideMobGroups || (this.guideMobGroups = {});
-        const groupPx = GUIDE_MOB_GROUP_TILES * ts;
+        const groups = []; // {kind, lead, members, x, y, dist, key, alpha}
+        const tracked = this.guideMobGroups || (this.guideMobGroups = {}); // kind -> {lead id: [member ids]}
+        const onScreen = this.guideMobOnScreen || new Set();
+        const nowOn = new Set();
+        const radius = (lead) => guideGroupRadius(Math.hypot(lead.x - p.x, lead.y - p.y), ts);
+        const near = (a, b, px) => Math.hypot(a.x - b.x, a.y - b.y) <= px;
         for (const kind in mobKinds) {
             const cands = []; // [mob, dist]
             for (const e of this.guideMobsOfKind(Number(kind))) {
                 if (area && !area.contains(e)) continue;
                 const sx = (e.x - c.x) * s;
                 const sy = (e.y - c.y) * s;
-                if (sx >= 0 && sx <= W && sy >= 0 && sy <= H) {
+                // Was on screen: has to get well off it to get an arrow; and the reverse.
+                const m = onScreen.has(e.id) ? -GUIDE_MOB_EDGE_PX : GUIDE_MOB_EDGE_PX;
+                if (sx >= m && sx <= W - m && sy >= m && sy <= H - m) {
                     // On screen: white bobbing marker over it instead.
+                    nowOn.add(e.id);
                     this.drawGuideMarker(gfx, e, sx, sy, GUIDE_MOB_COLOR, now);
                     continue;
                 }
                 cands.push([e, Math.hypot(e.x - p.x, e.y - p.y)]);
             }
-            const prev = tracked[kind] || [];
-            const isPrev = (e) => prev.includes(e.id);
+            const prev = tracked[kind] || {};
+            const isPrev = (e) => prev[e.id] !== undefined;
             cands.sort((a, b) => (isPrev(b[0]) - isPrev(a[0])) || a[1] - b[1]);
             const used = new Set();
-            const kindGroups = [];
+            const byLead = new Map(); // lead -> members
+            // 1) Last frame's groups: same lead, keep their old members.
             for (const [lead] of cands) {
-                if (used.has(lead)) continue;
-                const members = [];
+                if (!isPrev(lead)) break; // previous leads sort first
+                used.add(lead);
+                byLead.set(lead, [lead]);
+            }
+            for (const [lead, members] of byLead) {
+                const was = prev[lead.id];
+                const keepPx = radius(lead) * GUIDE_MOB_KEEP_RATIO;
+                for (const [e] of cands)
+                    if (!used.has(e) && was.includes(e.id) && near(e, lead, keepPx)) {
+                        used.add(e);
+                        members.push(e);
+                    }
+            }
+            // 2) Everything else joins / forms groups as usual.
+            for (const [lead] of cands) {
+                let members = byLead.get(lead);
+                if (!members) {
+                    if (used.has(lead)) continue;
+                    used.add(lead);
+                    byLead.set(lead, (members = [lead]));
+                }
+                const groupPx = radius(lead);
+                for (const [e] of cands)
+                    if (!used.has(e) && near(e, lead, groupPx)) {
+                        used.add(e);
+                        members.push(e);
+                    }
+            }
+            const kindGroups = [];
+            for (const [lead, members] of byLead) {
                 let mx = 0,
                     my = 0;
-                for (const [e] of cands) {
-                    if (used.has(e) || Math.hypot(e.x - lead.x, e.y - lead.y) > groupPx) continue;
-                    used.add(e);
-                    members.push(e);
+                for (const e of members) {
                     mx += e.x;
                     my += e.y;
                 }
@@ -208,17 +274,74 @@ export function installRendererDrawHud(proto) {
             }
             kindGroups.sort((a, b) => a.rank - b.rank);
             const chosen = kindGroups.slice(0, GUIDE_MOB_MAX_GROUPS);
-            tracked[kind] = chosen.map((g) => g.lead.id);
+            const next = {};
+            for (const g of chosen) next[g.lead.id] = g.members.map((e) => e.id);
+            tracked[kind] = next;
             for (const g of chosen) groups.push(g);
         }
-        // Forget the groups / smoothed directions of kinds no longer needed.
+        this.guideMobOnScreen = nowOn;
+        // Forget the groups of kinds no longer needed.
         for (const kind in tracked) if (!mobKinds[kind]) delete tracked[kind];
-        const angles = this.guideMobAngle || (this.guideMobAngle = {});
-        const keep = {};
-        for (const g of groups) keep[g.kind + ':' + g.lead.id] = true;
-        for (const k in angles) if (!keep[k]) delete angles[k];
 
+        // One smoothed arrow state per group, keyed by kind + lead (world-space
+        // target, so it tracks the camera exactly; alpha for fading). A new
+        // group (new lead) takes over the state of the same group under its
+        // old lead; states nobody takes over fade out where they were.
+        const smooth = this.guideMobPos || (this.guideMobPos = {});
+        const inheritPx = GUIDE_MOB_INHERIT_TILES * ts;
+        const live = {};
+        for (const g of groups) live[(g.key = g.kind + ':' + g.lead.id)] = g;
+        const orphans = Object.keys(smooth).filter((k) => !live[k]);
+        for (const g of groups) {
+            if (smooth[g.key]) continue;
+            let best = -1,
+                bestD = Infinity;
+            for (let i = 0; i < orphans.length; i++) {
+                const o = smooth[orphans[i]];
+                if (o.kind !== g.kind) continue;
+                const d = Math.hypot(o.x - g.x, o.y - g.y);
+                const same = d <= inheritPx || g.members.some((e) => o.ids.includes(e.id));
+                if (same && d < bestD) {
+                    bestD = d;
+                    best = i;
+                }
+            }
+            if (best >= 0) {
+                smooth[g.key] = smooth[orphans[best]];
+                delete smooth[orphans[best]];
+                orphans.splice(best, 1);
+            } else smooth[g.key] = { kind: g.kind, x: g.x, y: g.y, t: now, a: 0 };
+        }
         const shown = {};
+        for (const k in smooth) {
+            const st = smooth[k];
+            const g = live[k];
+            const dt = Math.min(Math.max((now - st.t) / 1000, 0), 0.25);
+            st.t = now;
+            if (g) {
+                const f = 1 - Math.exp(-GUIDE_MOB_FOLLOW_RATE * dt);
+                st.x += (g.x - st.x) * f;
+                st.y += (g.y - st.y) * f;
+                st.a = Math.min(1, st.a + (dt * 1000) / GUIDE_MOB_FADE_MS);
+                st.ids = g.members.map((e) => e.id);
+                st.leadId = g.lead.id;
+                const t = String(g.lead.title || '');
+                st.text = t.charAt(0).toUpperCase() + t.slice(1) + (g.members.length > 1 ? ' x' + g.members.length : '');
+            } else {
+                st.a -= (dt * 1000) / GUIDE_MOB_FADE_MS;
+                if (st.a <= 0) {
+                    delete smooth[k];
+                    continue;
+                }
+            }
+            this.drawEdgeArrow(
+                gfx, { id: st.leadId }, (st.x - c.x) * s, (st.y - c.y) * s, W, H,
+                GUIDE_MOB_COLOR, 0.9 * st.a, false, now,
+                guideScale(Math.hypot(st.x - p.x, st.y - p.y), ts), st.text
+            );
+            shown[st.leadId] = 'mob';
+        }
+
         for (let i = 0; i < Math.min(plain.length, GUIDE_MAX_NEAR); i++) {
             const e = plain[i];
             this.drawEdgeArrow(gfx, e[1], e[2], e[3], W, H, GUIDE_COLOR, 0.85, false, now, guideScale(e[0], ts));
@@ -227,17 +350,6 @@ export function installRendererDrawHud(proto) {
         for (const e of quest) {
             this.drawEdgeArrow(gfx, e[0], e[1], e[2], W, H, GUIDE_QUEST_COLOR, 1, true, now, guideScale(e[3], ts));
             shown[e[0].id] = true;
-        }
-        for (const g of groups) {
-            const t = String(g.lead.title || '');
-            let text = t.charAt(0).toUpperCase() + t.slice(1);
-            if (g.members.length > 1) text += ' x' + g.members.length;
-            this.drawEdgeArrow(
-                gfx, g.lead, (g.x - c.x) * s, (g.y - c.y) * s, W, H,
-                GUIDE_MOB_COLOR, 0.9, false, now, guideScale(g.dist, ts),
-                g.kind + ':' + g.lead.id, text
-            );
-            shown[g.lead.id] = 'mob';
         }
 
         // Hide the labels of NPCs that no longer get an arrow; mob labels are
@@ -282,32 +394,15 @@ export function installRendererDrawHud(proto) {
     // Arrow on the screen edge, on the line from the screen centre to the
     // off-screen point (tx, ty), pointing at it, with the NPC's name just
     // inside it. `scale` (guideScale()) makes it bigger the closer the NPC is.
-    // With `smoothKey`, the arrow's direction eases toward the target over a
-    // few frames (GUIDE_MOB_TURN_RATE) instead of snapping, so jittery or
-    // switching targets slide rather than jump.
+    // (Mob arrows get an already-smoothed target; see GUIDE_MOB_FOLLOW_RATE.)
     // `labelText` overrides the label (default: the entity's name).
-    proto.drawEdgeArrow = function (gfx, npc, tx, ty, W, H, color, alpha, pulse, now, scale, smoothKey, labelText) {
+    proto.drawEdgeArrow = function (gfx, npc, tx, ty, W, H, color, alpha, pulse, now, scale, labelText) {
         const cx = W / 2,
             cy = H / 2;
-        let dx = tx - cx,
+        const dx = tx - cx,
             dy = ty - cy;
         const len = Math.hypot(dx, dy);
         if (len < 1) return;
-        if (smoothKey) {
-            const angles = this.guideMobAngle || (this.guideMobAngle = {});
-            const target = Math.atan2(dy, dx);
-            const prev = angles[smoothKey];
-            let a = target;
-            if (prev) {
-                const dt = Math.min(Math.max((now - prev.t) / 1000, 0), 0.25);
-                let d = target - prev.a;
-                d = Math.atan2(Math.sin(d), Math.cos(d)); // shortest way round
-                a = prev.a + d * (1 - Math.exp(-GUIDE_MOB_TURN_RATE * dt));
-            }
-            angles[smoothKey] = { a, t: now };
-            dx = Math.cos(a) * len;
-            dy = Math.sin(a) * len;
-        }
         const hw = Math.max(W / 2 - GUIDE_MARGIN, 1);
         const hh = Math.max(H / 2 - GUIDE_MARGIN, 1);
         const t = Math.min(

@@ -40,22 +40,47 @@ const GUIDE_COLOR := Color(0, 1, 1, 0.85)      # NPC with quests for the player
 const GUIDE_QUEST_COLOR := Color("#ffd23f")   # quest done: go back to this NPC
 const GUIDE_MOB_COLOR := Color(1, 1, 1, 0.9)   # mob to kill for an active quest (kill / collect items)
 
-# Mobs of one kind within GUIDE_MOB_GROUP_TILES of a group's lead mob share
-# one arrow (at the group's middle, labelled "Name xN"); at most
-# GUIDE_MOB_MAX_GROUPS arrows per kind, nearest first.
-const GUIDE_MOB_GROUP_TILES := 6.0
+# Mobs of one kind near a group's lead mob share one arrow (at the group's
+# middle, labelled "Name xN"); at most GUIDE_MOB_MAX_GROUPS arrows per kind,
+# nearest first. "Near" grows with the lead's distance from the player: far
+# away mobs group loosely, close ones tightly. Group radius (tiles) =
+# distance (tiles) x GUIDE_MOB_GROUP_RATIO, kept between GUIDE_MOB_GROUP_MIN_TILES
+# and GUIDE_MOB_GROUP_MAX_TILES (guide_group_radius()).
+const GUIDE_MOB_GROUP_RATIO := 0.25
+const GUIDE_MOB_GROUP_MIN_TILES := 2.0
+const GUIDE_MOB_GROUP_MAX_TILES := 20.0
 const GUIDE_MOB_MAX_GROUPS := 3
 # Mob arrows stick to the groups they point at (no flipping as mobs wander):
 # another group only takes an arrow's place when it's at least
 # GUIDE_MOB_SWITCH_RATIO and GUIDE_MOB_SWITCH_TILES closer.
 const GUIDE_MOB_SWITCH_RATIO := 0.25
 const GUIDE_MOB_SWITCH_TILES := 3.0
-# How fast a mob arrow's direction eases toward its target (per second;
-# higher = snappier). Frame-rate independent; big turns catch up just as fast.
-const GUIDE_MOB_TURN_RATE := 8.0
+# How fast a mob arrow's target point eases toward its group's centre (per
+# second; higher = snappier). Smoothed in world space, so the arrow tracks the
+# camera exactly and only the target's own jumps (server position snaps, mobs
+# joining / leaving the group) glide. Frame-rate independent.
+const GUIDE_MOB_FOLLOW_RATE := 5.0
+# When a group's lead changes (lead died, walked on screen, group re-formed),
+# the new arrow carries on from the old one (glides instead of snapping) if
+# it's the same group: they share a mob, or are within this many tiles. An
+# arrow switching to a different group never glides over (that would sweep it
+# across the screen): the old one fades out and the new one fades in.
+const GUIDE_MOB_INHERIT_TILES := 4.0
+# A mob stays in the group it was in last frame until it's this many times
+# the group radius from the group's lead (new mobs join within the radius), so
+# mobs wandering around the group's edge - or the player walking toward or
+# away from it - don't keep splitting / merging the arrows.
+const GUIDE_MOB_KEEP_RATIO := 1.5
+# A mob only switches between "on screen" (marker) and "off screen" (arrow)
+# once it's this far (x UI scale) past the screen edge, so one walking along
+# the edge doesn't flicker between the two.
+const GUIDE_MOB_EDGE_PX := 24.0
+# Mob arrows fade in / out over this long (ms) instead of popping in / out.
+const GUIDE_MOB_FADE_MS := 250.0
 
-var _guide_mob_groups: Dictionary = {}   # mob kind -> ids of the lead mobs of the groups shown
-var _guide_mob_angle: Dictionary = {}    # "kind:lead id" -> [smoothed direction (radians), ticks msec]
+var _guide_mob_groups: Dictionary = {}   # mob kind -> {lead id: [member ids]} of the groups shown
+var _guide_mob_pos: Dictionary = {}      # "kind:lead id" -> {kind, pos (smoothed world centre), t (msec), a (alpha 0..1), ids, label}
+var _guide_mob_on_screen: Dictionary = {}   # ids of quest mobs drawn on screen (marker) last frame
 
 ## Overall size of the guide arrows and their name text (1 = normal).
 var guide_pointer_scale := 1.25
@@ -154,12 +179,16 @@ func _draw_guides(s: float) -> void:
 	for q in quest:
 		_draw_edge_arrow(q[1], str(q[0].ename), GUIDE_QUEST_COLOR, true, q[2])
 	# Off-screen mobs of each quest-target kind, in groups: mobs within
-	# GUIDE_MOB_GROUP_TILES of a group's lead share one arrow. Groups shown
-	# last frame are formed first around the same lead, so they keep their
-	# identity, and keep their arrow unless another group is clearly closer
-	# (GUIDE_MOB_SWITCH_*).
+	# guide_group_radius() of a group's lead share one arrow. Groups shown
+	# last frame are formed first around the same lead and keep their members
+	# out to GUIDE_MOB_KEEP_RATIO x that, so they keep their identity, and keep their
+	# arrow unless another group is clearly closer (GUIDE_MOB_SWITCH_*).
 	var kinds := _guide_mob_kinds()
 	var cands: Dictionary = {}   # kind -> [[mob, dist], ...]
+	var edge := GUIDE_MOB_EDGE_PX * UiStyle.ui_scale
+	var screen_in := screen.grow(-edge)    # was off screen: has to get this far in for a marker
+	var screen_out := screen.grow(edge)    # was on screen: has to get this far out for an arrow
+	var now_on: Dictionary = {}
 	for e in world.entities.values():
 		if kinds.is_empty():
 			break
@@ -169,16 +198,17 @@ func _draw_guides(s: float) -> void:
 		if not kinds.has(k):
 			continue
 		var sp := _to_screen(Vector2(e.x, e.y))
-		if screen.has_point(sp):
+		if (screen_out if _guide_mob_on_screen.has(e.id) else screen_in).has_point(sp):
+			now_on[e.id] = true
 			_draw_quest_marker(e, sp, s, Color(GUIDE_MOB_COLOR, 1.0))   # on screen: white marker over it
 			continue
 		if not cands.has(k):
 			cands[k] = []
 		cands[k].append([e, Vector2(e.x - p.x, e.y - p.y).length()])
-	var group_px := GUIDE_MOB_GROUP_TILES * TS
-	var groups: Array = []   # [kind, lead, member count, world centre, dist]
+	_guide_mob_on_screen = now_on
+	var groups: Array = []   # [kind, lead, member count, world centre, dist, member ids]
 	for k in cands:
-		var prev: Array = _guide_mob_groups.get(k, [])
+		var prev: Dictionary = _guide_mob_groups.get(k, {})
 		var list: Array = cands[k]
 		list.sort_custom(func(a, b):
 			var pa: bool = prev.has(a[0].id)
@@ -187,48 +217,123 @@ func _draw_guides(s: float) -> void:
 				return pa
 			return a[1] < b[1])
 		var used: Dictionary = {}
-		var kind_groups: Array = []   # [rank, kind, lead, count, centre, dist]
+		var leads: Array = []          # lead mobs, in list order
+		var members: Dictionary = {}   # lead id -> [mob, ...]
+		# 1) Last frame's groups: same lead, keep their old members.
 		for c_lead in list:
 			var lead = c_lead[0]
-			if used.has(lead.id):
-				continue
-			var sum := Vector2.ZERO
-			var count := 0
+			if not prev.has(lead.id):
+				break   # previous leads sort first
+			used[lead.id] = true
+			leads.append(lead)
+			members[lead.id] = [lead]
+		for lead in leads:
+			var was: Array = prev[lead.id]
+			var keep_px := guide_group_radius(Vector2(lead.x - p.x, lead.y - p.y).length()) * GUIDE_MOB_KEEP_RATIO
 			for c in list:
 				var e = c[0]
-				if used.has(e.id) or Vector2(e.x - lead.x, e.y - lead.y).length() > group_px:
+				if not used.has(e.id) and was.has(e.id) and Vector2(e.x - lead.x, e.y - lead.y).length() <= keep_px:
+					used[e.id] = true
+					members[lead.id].append(e)
+		# 2) Everything else joins / forms groups as usual.
+		for c_lead in list:
+			var lead = c_lead[0]
+			if not members.has(lead.id):
+				if used.has(lead.id):
 					continue
-				used[e.id] = true
+				used[lead.id] = true
+				leads.append(lead)
+				members[lead.id] = [lead]
+			var group_px := guide_group_radius(Vector2(lead.x - p.x, lead.y - p.y).length())
+			for c in list:
+				var e = c[0]
+				if not used.has(e.id) and Vector2(e.x - lead.x, e.y - lead.y).length() <= group_px:
+					used[e.id] = true
+					members[lead.id].append(e)
+		var kind_groups: Array = []   # [rank, kind, lead, count, centre, dist, member ids]
+		for lead in leads:
+			var sum := Vector2.ZERO
+			var ids: Array = []
+			for e in members[lead.id]:
 				sum += Vector2(e.x, e.y)
-				count += 1
-			var centre := sum / count
+				ids.append(e.id)
+			var centre := sum / ids.size()
 			var dist := Vector2(centre.x - p.x, centre.y - p.y).length()
 			# A group already shown ranks as if this much closer.
 			var rank := dist - maxf(dist * GUIDE_MOB_SWITCH_RATIO, GUIDE_MOB_SWITCH_TILES * TS) if prev.has(lead.id) else dist
-			kind_groups.append([rank, k, lead, count, centre, dist])
+			kind_groups.append([rank, k, lead, ids.size(), centre, dist, ids])
 		kind_groups.sort_custom(func(a, b): return a[0] < b[0])
-		var leads: Array = []
+		var next: Dictionary = {}
 		for i in range(mini(kind_groups.size(), GUIDE_MOB_MAX_GROUPS)):
 			var g: Array = kind_groups[i]
-			leads.append(g[2].id)
-			groups.append(g.slice(1))
-		_guide_mob_groups[k] = leads
-	# Forget the groups / smoothed directions of kinds no longer needed.
+			next[g[2].id] = g[6]
+			groups.append(g.slice(1, 7))
+		_guide_mob_groups[k] = next
+	# Forget the groups of kinds no longer needed.
 	for k in _guide_mob_groups.keys():
 		if not cands.has(k):
 			_guide_mob_groups.erase(k)
-	var keep: Dictionary = {}
+	# One smoothed arrow state per group, keyed by kind + lead (world-space
+	# target, so it tracks the camera exactly; alpha for fading). A new group
+	# (new lead) takes over the state of the same group under its old lead;
+	# states nobody takes over fade out where they were.
+	var live: Dictionary = {}
 	for g in groups:
-		keep["%d:%d" % [g[0], g[1].id]] = true
-	for key in _guide_mob_angle.keys():
-		if not keep.has(key):
-			_guide_mob_angle.erase(key)
-	for g in groups:
-		var label := _mob_name(int(g[0]))
-		if g[2] > 1:
-			label += " x%d" % g[2]
-		_draw_edge_arrow(_to_screen(g[3]), label, GUIDE_MOB_COLOR, false, g[4], "%d:%d" % [g[0], g[1].id])
-
+		live["%d:%d" % [g[0], g[1].id]] = g
+	var orphans: Array = []
+	for key in _guide_mob_pos.keys():
+		if not live.has(key):
+			orphans.append(key)
+	var inherit_px := GUIDE_MOB_INHERIT_TILES * TS
+	var now := Time.get_ticks_msec()
+	for key in live:
+		if _guide_mob_pos.has(key):
+			continue
+		var g: Array = live[key]
+		var best := -1
+		var best_d := INF
+		for i in range(orphans.size()):
+			var o: Dictionary = _guide_mob_pos[orphans[i]]
+			if int(o.kind) != int(g[0]):
+				continue
+			var d: float = (o.pos as Vector2).distance_to(g[3])
+			var same := d <= inherit_px
+			if not same:
+				for id in g[5]:
+					if (o.ids as Array).has(id):
+						same = true
+						break
+			if same and d < best_d:
+				best_d = d
+				best = i
+		if best >= 0:
+			_guide_mob_pos[key] = _guide_mob_pos[orphans[best]]
+			_guide_mob_pos.erase(orphans[best])
+			orphans.remove_at(best)
+		else:
+			_guide_mob_pos[key] = {"kind": g[0], "pos": g[3], "t": now, "a": 0.0, "ids": [], "label": ""}
+	for key in _guide_mob_pos.keys():
+		var st: Dictionary = _guide_mob_pos[key]
+		var dt := clampf((now - int(st.t)) / 1000.0, 0.0, 0.25)
+		st.t = now
+		if live.has(key):
+			var g: Array = live[key]
+			st.pos = (st.pos as Vector2).lerp(g[3], 1.0 - exp(-GUIDE_MOB_FOLLOW_RATE * dt))
+			st.a = minf(1.0, float(st.a) + dt * 1000.0 / GUIDE_MOB_FADE_MS)
+			st.ids = g[5]
+			var label := _mob_name(int(g[0]))
+			if g[2] > 1:
+				label += " x%d" % g[2]
+			st.label = label
+		else:
+			st.a = float(st.a) - dt * 1000.0 / GUIDE_MOB_FADE_MS
+			if st.a <= 0.0:
+				_guide_mob_pos.erase(key)
+				continue
+		var col := GUIDE_MOB_COLOR
+		col.a *= float(st.a)
+		var wc: Vector2 = st.pos
+		_draw_edge_arrow(_to_screen(wc), str(st.label), col, false, Vector2(wc.x - p.x, wc.y - p.y).length())
 
 ## npc_quest_ids of the NPCs whose quest the player has accepted and not finished.
 func _guide_active_quest_npcs() -> Dictionary:
@@ -267,6 +372,12 @@ func _mob_name(kind: int) -> String:
 	return n.substr(0, 1).to_upper() + n.substr(1)
 
 
+## Mob group radius (world px) for a lead mob `dist` world px from the player:
+## wider the further away it is (GUIDE_MOB_GROUP_*).
+static func guide_group_radius(dist: float) -> float:
+	return clampf(dist / TS * GUIDE_MOB_GROUP_RATIO, GUIDE_MOB_GROUP_MIN_TILES, GUIDE_MOB_GROUP_MAX_TILES) * TS
+
+
 ## Arrow size multiplier for an NPC `dist` world pixels from the player:
 ## bigger the closer it is.
 static func guide_scale(dist: float) -> float:
@@ -277,10 +388,8 @@ static func guide_scale(dist: float) -> float:
 ## Arrow on the screen edge, on the line from the screen centre to `target`
 ## (an off-screen point), pointing at it, with `label` just inside it. The
 ## arrow is bigger the closer the NPC is (`dist`, world pixels; guide_scale()).
-## With `smooth_key` (a mob group), the arrow's direction eases toward the
-## target over a few frames (GUIDE_MOB_TURN_RATE) instead of snapping, so
-## jittery or switching targets slide rather than jump.
-func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool, dist: float, smooth_key = null) -> void:
+## (Mob arrows get an already-smoothed target; see GUIDE_MOB_FOLLOW_RATE.)
+func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool, dist: float) -> void:
 	var u := UiStyle.ui_scale
 	var ps := guide_pointer_scale
 	var screen := get_viewport_rect()
@@ -288,16 +397,6 @@ func _draw_edge_arrow(target: Vector2, label: String, color: Color, pulse: bool,
 	var dir := target - c
 	if dir.length_squared() < 1.0:
 		return
-	if smooth_key != null:
-		var now := Time.get_ticks_msec()
-		var goal := dir.angle()
-		var a := goal
-		if _guide_mob_angle.has(smooth_key):
-			var prev: Array = _guide_mob_angle[smooth_key]
-			var dt := clampf((now - int(prev[1])) / 1000.0, 0.0, 0.25)
-			a = float(prev[0]) + angle_difference(float(prev[0]), goal) * (1.0 - exp(-GUIDE_MOB_TURN_RATE * dt))
-		_guide_mob_angle[smooth_key] = [a, now]
-		dir = Vector2.from_angle(a) * dir.length()
 	var m := GUIDE_MARGIN * u
 	var hw := maxf(screen.size.x / 2 - m, 1.0)
 	var hh := maxf(screen.size.y / 2 - m, 1.0)
