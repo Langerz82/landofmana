@@ -17,55 +17,60 @@
 
 class_name MapRenderer
 extends Node2D
-## Draws the map tiles with TileMapLayers. Large maps (map1 is 1024x1024
-## tiles) are streamed in CHUNK x CHUNK blocks around the camera.
+## Draws the map tiles. Large maps (map1 is 1024x1024 tiles) are streamed in
+## CHUNK x CHUNK blocks around the camera.
 ##
-## Each chunk owns its own layer nodes, so unloading one is a single node free
-## instead of thousands of erase_cell calls. Chunks on screen are always drawn
-## at once; a ring of PREFETCH chunks around the view is built in the
-## background, at most FRAME_BUDGET_USEC per frame, so walking across a chunk
-## edge never stalls a frame. Chunks are only freed once they are KEEP chunks
-## off screen, so walking back and forth over an edge doesn't rebuild them.
-## Tiles listed in map.high go to foreground layers drawn above entities
-## (z_index > 0).
+## Each chunk is two RenderingServer canvas items - one for the background
+## tiles (below entities) and one for the map.high foreground tiles (above
+## them) - filled with plain texture-rect commands. There are no TileMapLayer
+## nodes, so building a chunk is just a few hundred draw commands, freeing it
+## is two free_rid calls, and every chunk renders as one batched draw call.
+## Within a cell the tiles are drawn in their stacking order, which is all the
+## old per-layer TileMapLayers gave us (tiles never overlap other cells).
+##
+## Chunks on screen are always drawn at once. A ring of PREFETCH chunks around
+## the view is built in the background a few rows at a time, at most
+## FRAME_BUDGET_USEC per frame (kept hidden until complete), so walking never
+## stalls a frame, even on slow phone CPUs. Chunks are only freed once they are
+## KEEP chunks off screen, so walking back and forth doesn't rebuild them.
 
 const TS := Constants.G_TILESIZE
-const CHUNK := 16                    # matches TileMapLayer's rendering quadrant size
-const MAX_LAYERS := 6
+const CHUNK := 16
+const MAX_LAYERS := 6                # tiles per cell drawn below / above entities
 const PREFETCH := 2                  # chunks built beyond the visible edge
 const KEEP := 3                      # chunks kept beyond the visible edge before freeing
-const FRAME_BUDGET_USEC := 2000      # background chunk building per frame
+const FRAME_BUDGET_USEC := 1500      # background chunk building per frame
+const BG_Z := -20
+const FG_Z := 20
+const NO_LIMIT := 1 << 62
 const TILESET_PATH := "res://assets/img/common/ts-1-1.png"
 
 var map: MapData
-var _chunks: Dictionary = {}         # Vector2i -> Node2D holding that chunk's layers
+var _chunks: Dictionary = {}         # Vector2i -> Dictionary (see _start_build)
 var _queue: Array = []               # Vector2i chunks waiting to be built, nearest first
 var _queued: Dictionary = {}         # Vector2i -> true (members of _queue)
-var _tileset: TileSet
-var _source_id := 0
-var _cols := 20
+var _building = null                 # chunk being built over several frames, or null
+var _tex: Texture2D
+var _tex_rid: RID
+var _src: Array[Rect2] = []          # tile id - 1 -> region in the tileset
 var _area_rect = null                # Rect2i in pixels or null (camera area)
 var _last_vis := Rect2i()
 var _dirty := true                   # recompute wanted chunks on the next update_view
 
 
 func _ready() -> void:
-	_build_tileset()
+	_tex = load(TILESET_PATH)
+	_tex_rid = _tex.get_rid()
+	var cols := int(_tex.get_width() / TS)
+	var rows := int(_tex.get_height() / TS)
+	_src.resize(cols * rows)
+	for i in range(cols * rows):
+		_src[i] = Rect2((i % cols) * TS, (i / cols) * TS, TS, TS)
 
 
-func _build_tileset() -> void:
-	_tileset = TileSet.new()
-	_tileset.tile_size = Vector2i(TS, TS)
-	var tex: Texture2D = load(TILESET_PATH)
-	var src := TileSetAtlasSource.new()
-	src.texture = tex
-	src.texture_region_size = Vector2i(TS, TS)
-	_cols = int(tex.get_width() / TS)
-	var rows := int(tex.get_height() / TS)
-	for r in range(rows):
-		for c in range(_cols):
-			src.create_tile(Vector2i(c, r))
-	_source_id = _tileset.add_source(src)
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		clear_all()
 
 
 func set_map(m: MapData) -> void:
@@ -76,6 +81,9 @@ func set_map(m: MapData) -> void:
 func clear_all() -> void:
 	for key in _chunks.keys():
 		_free_chunk(key)
+	if _building != null:
+		_free_items(_building)
+		_building = null
 	_queue.clear()
 	_queued.clear()
 	_dirty = true
@@ -89,12 +97,11 @@ func set_area(rect) -> void:
 	clear_all()
 
 
-## Number of tiles currently placed (all layers), for tests and debugging.
+## Number of tiles currently drawn, for tests and debugging.
 func used_cell_count() -> int:
 	var n := 0
-	for holder in _chunks.values():
-		for l in holder.get_children():
-			n += (l as TileMapLayer).get_used_cells().size()
+	for b in _chunks.values():
+		n += int(b.count)
 	return n
 
 
@@ -122,6 +129,9 @@ func _refresh(vis: Rect2i, all: Rect2i) -> void:
 	for key in _chunks.keys():
 		if not keep.has_point(key):
 			_free_chunk(key)
+	if _building != null and not want.has_point(_building.key):
+		_free_items(_building)
+		_building = null
 	if not _queue.is_empty():
 		_queue = _queue.filter(func(k): return want.has_point(k))
 		_queued.clear()
@@ -131,8 +141,13 @@ func _refresh(vis: Rect2i, all: Rect2i) -> void:
 	for cy in range(vis.position.y, vis.end.y):
 		for cx in range(vis.position.x, vis.end.x):
 			var k := Vector2i(cx, cy)
-			if not _chunks.has(k):
-				_build_chunk(k)
+			if _chunks.has(k):
+				continue
+			if _building != null and _building.key == k:
+				_build_rows(_building, NO_LIMIT)
+				_building = null
+			else:
+				_build_rows(_start_build(k), NO_LIMIT)
 	# around the screen: build over the next frames, nearest first
 	var added := false
 	for cy in range(want.position.y, want.end.y):
@@ -148,23 +163,30 @@ func _refresh(vis: Rect2i, all: Rect2i) -> void:
 
 
 func _process_queue() -> void:
-	if _queue.is_empty():
+	if _building == null and _queue.is_empty():
 		return
-	var t0 := Time.get_ticks_usec()
-	while not _queue.is_empty() and Time.get_ticks_usec() - t0 < FRAME_BUDGET_USEC:
-		var k: Vector2i = _queue.pop_front()
-		_queued.erase(k)
-		if not _chunks.has(k):
-			_build_chunk(k)
+	var end := Time.get_ticks_usec() + FRAME_BUDGET_USEC
+	while Time.get_ticks_usec() < end:
+		if _building == null:
+			if _queue.is_empty():
+				return
+			var k: Vector2i = _queue.pop_front()
+			_queued.erase(k)
+			if _chunks.has(k):
+				continue
+			_building = _start_build(k)
+		if _build_rows(_building, end):
+			_building = null
 
 
-func _build_chunk(c: Vector2i) -> void:
-	var holder := Node2D.new()
-	holder.name = "Chunk_%d_%d" % [c.x, c.y]
-	var bg: Array = []
-	var fg: Array = []
-	bg.resize(MAX_LAYERS)
-	fg.resize(MAX_LAYERS)
+func _start_build(c: Vector2i) -> Dictionary:
+	return {"key": c, "row": 0, "bg": RID(), "fg": RID(), "count": 0}
+
+
+## Draws the chunk's next rows until done or past `end` (usec). Returns true
+## once the chunk is complete (it is then shown and registered).
+func _build_rows(b: Dictionary, end: int) -> bool:
+	var c: Vector2i = b.key
 	var x0 := c.x * CHUNK
 	var y0 := c.y * CHUNK
 	var x1 := mini(x0 + CHUNK, map.width)
@@ -173,7 +195,9 @@ func _build_chunk(c: Vector2i) -> void:
 	var use_area := _area_rect != null
 	var tiles := map.tiles
 	var w := map.width
-	for gy in range(y0, y1):
+	var nsrc := _src.size()
+	var gy: int = y0 + int(b.row)
+	while gy < y1:
 		for gx in range(x0, x1):
 			if use_area and not area.has_point(Vector2i(gx * TS + 8, gy * TS + 8)):
 				continue
@@ -183,48 +207,57 @@ func _build_chunk(c: Vector2i) -> void:
 				var fi := 0
 				for id in t:
 					var tid := int(id)
-					if tid <= 0:
+					if tid <= 0 or tid > nsrc:
 						continue
 					if map.is_high_tile(tid):
 						if fi < MAX_LAYERS:
-							_set_tile(_layer(holder, fg, fi, true), gx, gy, tid)
+							_add_tile(b, true, gx, gy, tid)
 						fi += 1
 					else:
 						if bi < MAX_LAYERS:
-							_set_tile(_layer(holder, bg, bi, false), gx, gy, tid)
+							_add_tile(b, false, gx, gy, tid)
 						bi += 1
 			elif t != null:
 				var tid := int(t)
-				if tid > 0:
-					if map.is_high_tile(tid):
-						_set_tile(_layer(holder, fg, 0, true), gx, gy, tid)
-					else:
-						_set_tile(_layer(holder, bg, 0, false), gx, gy, tid)
-	# filled off-tree, then added once, so the renderer builds it in one go
-	add_child(holder)
-	_chunks[c] = holder
+				if tid > 0 and tid <= nsrc:
+					_add_tile(b, map.is_high_tile(tid), gx, gy, tid)
+		gy += 1
+		b.row = gy - y0
+		if Time.get_ticks_usec() >= end:
+			break
+	if gy < y1:
+		return false
+	for k in ["bg", "fg"]:
+		var ci: RID = b[k]
+		if ci.is_valid():
+			RenderingServer.canvas_item_set_visible(ci, true)
+	_chunks[c] = b
+	return true
 
 
-## The chunk's i-th background/foreground layer, created on first use.
-func _layer(holder: Node2D, list: Array, i: int, front: bool) -> TileMapLayer:
-	var l = list[i]
-	if l == null:
-		l = TileMapLayer.new()
-		l.tile_set = _tileset
-		l.z_index = (20 if front else -20) + i
-		holder.add_child(l)
-		list[i] = l
-	return l
+func _add_tile(b: Dictionary, high: bool, gx: int, gy: int, tid: int) -> void:
+	var k := "fg" if high else "bg"
+	var ci: RID = b[k]
+	if not ci.is_valid():
+		ci = RenderingServer.canvas_item_create()
+		RenderingServer.canvas_item_set_parent(ci, get_canvas_item())
+		RenderingServer.canvas_item_set_z_index(ci, FG_Z if high else BG_Z)
+		RenderingServer.canvas_item_set_visible(ci, false)   # shown when the chunk is complete
+		b[k] = ci
+	RenderingServer.canvas_item_add_texture_rect_region(ci, Rect2(gx * TS, gy * TS, TS, TS), _tex_rid, _src[tid - 1])
+	b.count += 1
 
 
-func _set_tile(layer: TileMapLayer, gx: int, gy: int, tid: int) -> void:
-	var i := tid - 1
-	layer.set_cell(Vector2i(gx, gy), _source_id, Vector2i(i % _cols, i / _cols))
+func _free_items(b: Dictionary) -> void:
+	for k in ["bg", "fg"]:
+		var ci: RID = b[k]
+		if ci.is_valid():
+			RenderingServer.free_rid(ci)
+			b[k] = RID()
 
 
 func _free_chunk(c: Vector2i) -> void:
-	var holder: Node2D = _chunks.get(c)
+	var b = _chunks.get(c)
 	_chunks.erase(c)
-	if holder:
-		remove_child(holder)
-		holder.queue_free()
+	if b != null:
+		_free_items(b)
